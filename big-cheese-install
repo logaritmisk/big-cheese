@@ -12,7 +12,7 @@ drush provision-save "$PLATFORM_ALIAS" \
 # Save site with provision.
 drush provision-save "$SITE_ALIAS" \
   --context_type=site \
-  --db_server="localhost" \
+  --db_server="server_localhost" \
   --uri="$SITE_URI" \
   --platform="$PLATFORM_ALIAS" \
   --profile="$PROFILE"
