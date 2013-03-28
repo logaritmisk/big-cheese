@@ -5,19 +5,19 @@
 cp -R $WORKSPACE $PLATFORM_ROOT
 
 # Save platform with provision.
-drush @hostmaster provision-save "$PLATFORM_ALIAS" \
+drush provision-save "$PLATFORM_ALIAS" \
   --context_type=platform \
   --root="$PLATFORM_WEB"
 
 # Save site with provision.
-drush @hostmaster provision-save "$SITE_ALIAS" \
+drush provision-save "$SITE_ALIAS" \
   --context_type=site \
   --uri="$SITE_URI" \
   --platform="$PLATFORM_ALIAS" \
   --profile="$PROFILE"
 
 # Install site with provision.
-drush @hostmaster "$SITE_ALIAS" provision-install -v
+drush "$SITE_ALIAS" provision-install -v
 
 # Change admin password.
 drush "$SITE_ALIAS" upwd admin --password=nimda
