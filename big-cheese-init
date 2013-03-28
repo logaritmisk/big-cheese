@@ -1,9 +1,15 @@
 #!/bin/sh
 
 
+# Bail if there is no .ciconfig file.
+test -f .ciconfig || return 1
+
+
+# Help function to read .ciconfig file.
 _read() { local c=$(cat .ciconfig 2> /dev/null | grep '^\s*'$1'\s=') && echo ${c#*=} || echo ${2:-''}; }
 
 
+# Variables.
 NAME=$(_read name ${JOB_NAME#*-})
 PROFILE=$(_read profile ${JOB_NAME#*-})
 ROOT=$(_read root 'web')
@@ -18,9 +24,12 @@ PLATFORM_ALIAS=@platform_$(echo $PLATFORM_NAME | sed 's/[\.-]//g')
 SITE_URI=${PLATFORM_NAME}.osborn.wunderkraut.com
 SITE_ALIAS=@$(echo $SITE_URI | sed 's/[\.-]//g')
 
+
+# Make sure there is a jenkins folder.
 mkdir -p jenkins
 
 
+# Save variables as properties.
 tee jenkins/properties <<EOF
 NAME = $NAME
 PROFILE = $PROFILE
