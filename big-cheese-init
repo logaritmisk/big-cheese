@@ -1,0 +1,37 @@
+#!/bin/sh
+
+
+_read() { local c=$(cat .ciconfig 2> /dev/null | grep '^\s*'$1'\s=') && echo ${c#*=} || echo ${2:-''}; }
+
+
+NAME=$(_read name ${JOB_NAME#*-})
+PROFILE=$(_read profile ${JOB_NAME#*-})
+ROOT=$(_read root 'web')
+
+USE_PHPCS=$(_read phpcs false)
+USE_SIMPLETEST=$(_readsimpletest false)
+
+PLATFORM_NAME=${NAME}-build${BUILD_NUMBER}
+PLATFORM_ROOT=${JENKINS_HOME}/platforms/${PLATFORM_NAME}/${ROOT}
+PLATFORM_ALIAS=@platform_$(echo $PLATFORM_NAME | sed 's/[\.-]//g')
+
+SITE_URI=${PLATFORM_NAME}.osborn.wunderkraut.com
+SITE_ALIAS=@$(echo $SITE_URI | sed 's/[\.-]//g')
+
+mkdir -p jenkins
+
+
+tee jenkins/properties <<EOF
+NAME = $NAME
+PROFILE = $PROFILE
+
+USE_PHPCS = $USE_PHPCS
+USE_SIMPLETEST = $USE_SIMPLETEST
+
+PLATFORM_NAME = $PLATFORM_NAME
+PLATFORM_ROOT = $PLATFORM_ROOT
+PLATFORM_ALIAS = $PLATFORM_ALIAS
+
+SITE_URI = $SITE_URI
+SITE_ALIAS = $SITE_ALIAS
+EOF
