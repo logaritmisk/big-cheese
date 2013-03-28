@@ -1,22 +1,22 @@
 #!/bin/bash
 
 
-# Copy platform to aegir.
-cp -R $WORKSPACE $BUILD_ROOT
+# Copy platform to platform root.
+cp -R $WORKSPACE $PLATFORM_ROOT
 
-# Save platform.
+# Save platform with provision.
 drush @hostmaster provision-save "$PLATFORM_ALIAS" \
   --context_type=platform \
   --root="$PLATFORM_ROOT"
 
-# Save site.
+# Save site with provision.
 drush @hostmaster provision-save "$SITE_ALIAS" \
   --context_type=site \
   --uri="$SITE_URI" \
   --platform="$PLATFORM_ALIAS" \
   --profile="$PROFILE"
 
-# Install site.
+# Install site with provision.
 drush @hostmaster "$SITE_ALIAS" provision-install -v
 
 # Change admin password.
