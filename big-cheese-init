@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 
 # Bail if there is no .ciconfig file.
@@ -15,7 +15,7 @@ PROFILE=$(_read profile ${JOB_NAME#*-})
 ROOT=$(_read root 'web')
 
 USE_PHPCS=$(_read phpcs false)
-USE_SIMPLETEST=$(_readsimpletest false)
+USE_SIMPLETEST=$(_read simpletest false)
 
 PLATFORM_NAME=${NAME}-build${BUILD_NUMBER}
 PLATFORM_ROOT=${JENKINS_HOME}/platforms/${PLATFORM_NAME}/${ROOT}
