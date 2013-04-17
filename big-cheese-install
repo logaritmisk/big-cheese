@@ -20,7 +20,7 @@ drush provision-save "${SITE_ALIAS}" \
   --profile="${PROFILE}"
 
 # Install site with provision.
-drush "$SITE_ALIAS" provision-install -v
+drush "${SITE_ALIAS}" provision-install -v
 
 # There is a database to import.
 if [ "${USE_DATABASE}" != "false" ] && [ -f "/mnt/database/${USE_DATABASE}" ]; then
