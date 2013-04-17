@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+set -v
 
 # Copy platform to platform root.
 cp -R $WORKSPACE $PLATFORM_ROOT
@@ -21,9 +23,9 @@ drush provision-save "$SITE_ALIAS" \
 drush "$SITE_ALIAS" provision-install -v
 
 # There is a database to import.
-if [ "${USE_BACKUP}" != "false" ] && [ -f "/mnt/backups/${USE_BACKUP}" ]; then
+if [ "${USE_DATABASE}" != "false" ] && [ -f "/mnt/database/${USE_DATABASE}" ]; then
   drush "${SITE_ALIAS}" sql-drop -y
-  drush "${SITE_ALIAS}" sql-cli < "/mnt/backups/${USE_BACKUP}"
+  drush "${SITE_ALIAS}" sql-cli < "/mnt/database/${USE_DATABASE}"
 
   drush updb -y
 fi
