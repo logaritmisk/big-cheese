@@ -53,8 +53,11 @@ if [ "${SHIELD_USER}" != "false" ] && [ "${SHIELD_PASS}" != "false" ]; then
   drush "$SITE_ALIAS" en shield -y
 fi
 
+# Get admin account.
+ADMIN_ACCOUNT=$(drush "$SITE_ALIAS" uinf 1 | awk '/User name/{print $4}')
+
 # Change admin password.
-drush "$SITE_ALIAS" upwd admin --password=nimda
+drush "$SITE_ALIAS" upwd "${ADMIN_ACCOUNT:-admin}" --password=nimda
 
 # Verify platform.
 drush "$PLATFORM_ALIAS" provision-verify -v
