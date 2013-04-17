@@ -27,7 +27,7 @@ if [ "${USE_DATABASE}" != "false" ] && [ -f "/mnt/database/${USE_DATABASE}" ]; t
   drush "${SITE_ALIAS}" sql-drop -y
   drush "${SITE_ALIAS}" sql-cli < "/mnt/database/${USE_DATABASE}"
 
-  drush updb -y
+  drush "${SITE_ALIAS}" updb -y
 fi
 
 # Change admin password.
