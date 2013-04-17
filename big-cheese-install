@@ -20,6 +20,14 @@ drush provision-save "$SITE_ALIAS" \
 # Install site with provision.
 drush "$SITE_ALIAS" provision-install -v
 
+# There is a database to import.
+if [ "${USE_BACKUP}" != "false" ] && [ -f "${USE_BACKUP}" ]; then
+  drush "${SITE_ALIAS}" sql-drop -y
+  drush "${SITE_ALIAS}" sql-cli < "/mnt/backups/${USE_BACKUP}"
+
+  drush updb -y
+fi
+
 # Change admin password.
 drush "$SITE_ALIAS" upwd admin --password=nimda
 

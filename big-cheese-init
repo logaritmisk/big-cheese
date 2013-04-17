@@ -14,8 +14,7 @@ NAME=$(_read name ${JOB_NAME#*-})
 PROFILE=$(_read profile ${JOB_NAME#*-})
 ROOT=$(_read root 'web')
 
-USE_PHPCS=$(_read phpcs false)
-USE_SIMPLETEST=$(_read simpletest false)
+USE_DATABASE=$(_read database false)
 
 PLATFORM_NAME=${NAME}-build${BUILD_NUMBER}
 PLATFORM_ROOT=${JENKINS_HOME}/platforms/${PLATFORM_NAME}
@@ -35,8 +34,7 @@ tee jenkins/properties <<EOF
 NAME = $NAME
 PROFILE = $PROFILE
 
-USE_PHPCS = $USE_PHPCS
-USE_SIMPLETEST = $USE_SIMPLETEST
+USE_DATABASE = $USE_DATABASE
 
 PLATFORM_NAME = $PLATFORM_NAME
 PLATFORM_ROOT = $PLATFORM_ROOT
