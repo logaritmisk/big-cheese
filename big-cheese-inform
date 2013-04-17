@@ -1,0 +1,4 @@
+#!/bin/bash
+
+
+echo "PUBLIC-URI:${SITE_URI}"
