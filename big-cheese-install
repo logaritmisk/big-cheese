@@ -30,6 +30,19 @@ if [ "${USE_DATABASE}" != "false" ] && [ -f "/mnt/database/${USE_DATABASE}" ]; t
   drush "${SITE_ALIAS}" updb -y
 fi
 
+# Stage file proxy.
+if [ "${ORIGIN_URL}" != "false" ]; then
+  drush "$SITE_ALIAS" dl stage_file_proxy --dev
+
+  drush "$SITE_ALIAS" vset stage_file_proxy_origin "${ORIGIN_URL}" -y
+
+  if [ "${ORIGIN_DIR}" != "false" ]; then
+    drush "$SITE_ALIAS" vset stage_file_proxy_origin_dir "${ORIGIN_DIR}" -y
+  fi
+
+  drush "$SITE_ALIAS" en stage_file_proxy -y
+fi
+
 # Change admin password.
 drush "$SITE_ALIAS" upwd admin --password=nimda
 
