@@ -22,7 +22,7 @@ PLATFORM_ROOT=${JENKINS_HOME}/platforms/${PLATFORM_NAME}
 PLATFORM_WEB=${PLATFORM_ROOT}/${ROOT}
 PLATFORM_ALIAS=@platform_$(echo $PLATFORM_NAME | sed 's/[\.-]//g')
 
-SITE_URI=${PLATFORM_NAME}.osborn.wunderkraut.com
+SITE_URI=$(echo "${PLATFORM_NAME}.osborn.wunderkraut.com" | tr '[:upper:]' '[:lower:]')
 SITE_ALIAS=@$(echo $SITE_URI | sed 's/[\.-]//g')
 
 
