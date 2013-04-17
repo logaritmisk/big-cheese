@@ -78,7 +78,7 @@ drush provision-save "${SITE_ALIAS}" \
   --redirection=true
 
 # Save alias to current.
-echo "${SITE_ALIAS}" > "~/.big-cheese/${SITE_CURRENT}"
+echo "${SITE_ALIAS}" > ~/.big-cheese/"${SITE_CURRENT}"
 
 # Verify platform.
 drush "$PLATFORM_ALIAS" provision-verify -v
