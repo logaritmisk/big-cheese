@@ -1,4 +1,4 @@
 #!/bin/bash
 
 
-echo "PUBLIC-URI:${SITE_URI}"
+echo "PUBLIC-URI:http//${SITE_URI}"
