@@ -7,17 +7,19 @@ set -v
 cp -R $WORKSPACE $PLATFORM_ROOT
 
 # Save platform with provision.
-drush provision-save "$PLATFORM_ALIAS" \
+drush provision-save "${PLATFORM_ALIAS}" \
   --context_type=platform \
-  --root="$PLATFORM_WEB"
+  --root="{$PLATFORM_WEB}"
 
 # Save site with provision.
-drush provision-save "$SITE_ALIAS" \
+drush provision-save "${SITE_ALIAS}" \
   --context_type=site \
   --db_server="server_localhost" \
-  --uri="$SITE_URI" \
-  --platform="$PLATFORM_ALIAS" \
-  --profile="$PROFILE"
+  --uri="${SITE_URI}" \
+  --platform="${PLATFORM_ALIAS}" \
+  --profile="${PROFILE}" \
+  --aliases="${SITE_CURRENT}"
+  --redirection=true
 
 # Install site with provision.
 drush "$SITE_ALIAS" provision-install -v

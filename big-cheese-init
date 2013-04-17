@@ -27,8 +27,9 @@ PLATFORM_ROOT=${JENKINS_HOME}/platforms/${PLATFORM_NAME}
 PLATFORM_WEB=${PLATFORM_ROOT}/${ROOT}
 PLATFORM_ALIAS=@platform_$(echo $PLATFORM_NAME | sed 's/[\.-]//g')
 
-SITE_URI=$(echo "${PLATFORM_NAME}.osborn.wunderkraut.com" | tr '[:upper:]' '[:lower:]')
 SITE_ALIAS=@$(echo $SITE_URI | sed 's/[\.-]//g')
+SITE_URI=$(echo "${PLATFORM_NAME}.osborn.wunderkraut.com" | tr '[:upper:]' '[:lower:]')
+SITE_CURRENT=$(echo "${NAME}-current.osborn.wunderkraut.com" | tr '[:upper:]' '[:lower:]')
 
 
 # Make sure there is a jenkins folder.
@@ -53,6 +54,7 @@ PLATFORM_ROOT = $PLATFORM_ROOT
 PLATFORM_WEB = $PLATFORM_WEB
 PLATFORM_ALIAS = $PLATFORM_ALIAS
 
-SITE_URI = $SITE_URI
 SITE_ALIAS = $SITE_ALIAS
+SITE_URI = $SITE_URI
+SITE_CURRENT = $SITE_CURRENT
 EOF
