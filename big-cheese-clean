@@ -1,7 +1,7 @@
 #!/usr/bin/env drush
 
 
-define('PROFILE', 'elvaco');
+define('MAX_PLATFORMS', 15);
 
 
 drush_sitealias_load_all();
@@ -9,6 +9,8 @@ drush_sitealias_load_all();
 $profiles = array();
 foreach (drush_get_context('site-aliases') as $alias => $info) {
   if (empty($info['profile'])) {
+    var_dump($alias);
+    var_dump($info);
     continue;
   }
 
@@ -17,31 +19,34 @@ foreach (drush_get_context('site-aliases') as $alias => $info) {
   $profiles[$info['profile']][$info['uri']] = $info;
 }
 
-$sites = array_keys($profiles[PROFILE]);
-natsort($sites);
-$sites = array_slice($sites, 25);
-$sites = array_reverse($sites);
+foreach ($profiles as $profile => $sites) {
+  $sites = array_keys($sites);
+  natsort($sites);
+  $sites = array_reverse($sites);
+  array_splice($sites, 0, MAX_PLATFORMS);
+  $sites = array_reverse($sites);
 
-foreach ($sites as $site) {
-  $info = $profiles[PROFILE][$site];
+  foreach ($sites as $site) {
+    $info = $profiles[$profile][$site];
 
-  drush_log(dt("Delete site and platform for '%uri'", array('%uri' => $site)));
+    drush_log(dt("Delete site and platform for '%uri'", array('%uri' => $site)));
 
-  if (($return = provision_backend_invoke($info['alias'], 'provision-delete')) === FALSE) {
-    var_dump(drush_backend_get_result()); die;
+    if (($return = provision_backend_invoke($info['alias'], 'provision-delete')) === FALSE) {
+      var_dump(drush_backend_get_result()); die;
+    }
+    if (!empty($return['context']['#file'])) {
+      unlink($return['context']['#file']);
+    }
+
+    if (($return = provision_backend_invoke($info['platform'], 'provision-delete')) === FALSE) {
+      var_dump(drush_backend_get_result()); die;
+    }
+    if (!empty($return['context']['#file'])) {
+      unlink($return['context']['#file']);
+    }
+
+    $root = (basename($info['root']) === 'web') ? dirname($info['root']) : $info['root'];
+
+    _provision_recursive_delete($root);
   }
-  elseif (!empty($return['error_log'])) {
-    unlink($return['context']['#file']);
-  }
-
-  if (($return = provision_backend_invoke($info['platform'], 'provision-delete')) === FALSE) {
-    var_dump(drush_backend_get_result()); die;
-  }
-  elseif (!empty($return['error_log'])) {
-    unlink($return['context']['#file']);
-  }
-
-  $root = (basename($info['root']) === 'web') ? dirname($info['root']) : $info['root'];
-
-  _provision_recursive_delete($root);
 }
