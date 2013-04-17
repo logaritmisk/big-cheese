@@ -49,6 +49,7 @@ if [ "${SHIELD_USER}" != "false" ] && [ "${SHIELD_PASS}" != "false" ]; then
 
   drush "$SITE_ALIAS" vset shield_user "${SHIELD_USER}" -y
   drush "$SITE_ALIAS" vset shield_pass "${SHIELD_PASS}" -y
+  drush "$SITE_ALIAS" vset shield_print "" -y
 
   drush "$SITE_ALIAS" en shield -y
 fi
