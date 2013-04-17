@@ -9,8 +9,6 @@ drush_sitealias_load_all();
 $profiles = array();
 foreach (drush_get_context('site-aliases') as $alias => $info) {
   if (empty($info['profile'])) {
-    var_dump($alias);
-    var_dump($info);
     continue;
   }
 
