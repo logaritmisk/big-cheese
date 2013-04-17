@@ -17,9 +17,7 @@ drush provision-save "${SITE_ALIAS}" \
   --db_server="server_localhost" \
   --uri="${SITE_URI}" \
   --platform="${PLATFORM_ALIAS}" \
-  --profile="${PROFILE}" \
-  --aliases="${SITE_CURRENT}"
-  --redirection=true
+  --profile="${PROFILE}"
 
 # Install site with provision.
 drush "$SITE_ALIAS" provision-install -v
@@ -61,6 +59,26 @@ ADMIN_ACCOUNT=$(drush "$SITE_ALIAS" uinf 1 | awk '/User name/{print $4}')
 
 # Change admin password.
 drush "$SITE_ALIAS" upwd "${ADMIN_ACCOUNT:-admin}" --password=nimda
+
+# Check if we can find a old current.
+if [ -f "~/.big-cheese/${SITE_CURRENT}" ]; then
+  OLD_CURRENT=$(cat "~/.big-cheese/${SITE_CURRENT}")
+
+  # Add 'current' alias to site.
+  drush "${OLD_CURRENT}" provision-save \
+    --aliases=","
+
+  # Verify to 'remove' alias from vhost.
+  drush "${OLD_CURRENT}" provision-verify
+fi
+
+# Add 'current' alias to site.
+drush provision-save "${SITE_ALIAS}" \
+  --aliases="${SITE_CURRENT}" \
+  --redirection=true
+
+# Save alias to current.
+echo "${SITE_ALIAS}" > "~/.big-cheese/${SITE_CURRENT}"
 
 # Verify platform.
 drush "$PLATFORM_ALIAS" provision-verify -v

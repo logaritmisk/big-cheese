@@ -1,6 +1,10 @@
 #!/bin/bash
 
 
+# Create big-cheese home.
+test -d ~/.big-cheese || mkdir -p ~/.big-cheese
+
+
 # Bail if there is no .ciconfig file.
 test -f .ciconfig || return 1
 
