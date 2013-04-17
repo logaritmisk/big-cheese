@@ -45,7 +45,7 @@ foreach ($profiles as $profile => $sites) {
       unlink($return['context']['#file']);
     }
 
-    provision_backend_invoke($info['alias'], 'provision-verify');
+    provision_backend_invoke($info['platform'], 'provision-verify');
 
     $root = (basename($info['root']) === 'web') ? dirname($info['root']) : $info['root'];
 
