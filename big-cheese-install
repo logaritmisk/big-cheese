@@ -73,9 +73,11 @@ if [ -f "~/.big-cheese/${SITE_CURRENT}" ]; then
 fi
 
 # Add 'current' alias to site.
-drush provision-save "${SITE_ALIAS}" \
+drush "${SITE_ALIAS}" provision-save \
   --aliases="${SITE_CURRENT}" \
   --redirection=true
+
+drush "${SITE_ALIAS}" provision-verify
 
 # Save alias to current.
 echo "${SITE_ALIAS}" > ~/.big-cheese/"${SITE_CURRENT}"
