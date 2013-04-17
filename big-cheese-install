@@ -43,6 +43,16 @@ if [ "${ORIGIN_URL}" != "false" ]; then
   drush "$SITE_ALIAS" en stage_file_proxy -y
 fi
 
+# Shield
+if [ "${SHIELD_USER}" != "false" ] && [ "${SHIELD_PASS}" != "false" ]; then
+  drush "$SITE_ALIAS" dl shield --dev
+
+  drush "$SITE_ALIAS" vset shield_user "${SHIELD_USER}" -y
+  drush "$SITE_ALIAS" vset shield_pass "${SHIELD_PASS}" -y
+
+  drush "$SITE_ALIAS" en shield -y
+fi
+
 # Change admin password.
 drush "$SITE_ALIAS" upwd admin --password=nimda
 
