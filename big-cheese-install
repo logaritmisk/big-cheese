@@ -61,8 +61,8 @@ ADMIN_ACCOUNT=$(drush "$SITE_ALIAS" uinf 1 | awk '/User name/{print $4}')
 drush "$SITE_ALIAS" upwd "${ADMIN_ACCOUNT:-admin}" --password=nimda
 
 # Check if we can find a old current.
-if [ -f "~/.big-cheese/${SITE_CURRENT}" ]; then
-  OLD_CURRENT=$(cat "~/.big-cheese/${SITE_CURRENT}")
+if [ -f ~/.big-cheese/"${SITE_CURRENT}" ]; then
+  OLD_CURRENT=$(cat ~/.big-cheese/"${SITE_CURRENT}")
 
   # Add 'current' alias to site.
   drush "${OLD_CURRENT}" provision-save \
