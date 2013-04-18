@@ -8,3 +8,8 @@
 > to kill Lemming, Stapleton, LaFarge, Vanderberg, Nurse, and Brian slowly
 > and painfully with his drill. Luckily, it happens to be 1:00, so
 > everyone leaves for lunch break.
+
+
+## Todo
+
+- Patch provision to support 307 redirects.
