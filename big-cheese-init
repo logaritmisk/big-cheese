@@ -18,13 +18,13 @@ NAME=$(_read name ${JOB_NAME#*-})
 PROFILE=$(_read profile ${JOB_NAME#*-})
 ROOT=$(_read root 'web')
 
-USE_DATABASE=$(_read database false)
+USE_DATABASE=$(_read database)
 
-ORIGIN_URL=$(_read origin_url false)
-ORIGIN_DIR=$(_read origin_dir false)
+ORIGIN_URL=$(_read origin_url)
+ORIGIN_DIR=$(_read origin_dir)
 
-SHIELD_USER=$(_read shield_user false)
-SHIELD_PASS=$(_read shield_pass false)
+SHIELD_USER=$(_read shield_user)
+SHIELD_PASS=$(_read shield_pass)
 
 PLATFORM_NAME=${NAME}-build${BUILD_NUMBER}
 PLATFORM_ROOT=${JENKINS_HOME}/platforms/${PLATFORM_NAME}

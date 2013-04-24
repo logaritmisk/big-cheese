@@ -23,7 +23,7 @@ drush provision-save "${SITE_ALIAS}" \
 drush "${SITE_ALIAS}" provision-install -v
 
 # There is a database to import.
-if [ "${USE_DATABASE}" != "false" ] && [ -f "/mnt/database/${USE_DATABASE}" ]; then
+if [ -n "${USE_DATABASE}" ] && [ -f "/mnt/database/${USE_DATABASE}" ]; then
   drush "${SITE_ALIAS}" sql-drop -y
   drush "${SITE_ALIAS}" sql-cli < "/mnt/database/${USE_DATABASE}"
 
@@ -32,7 +32,7 @@ if [ "${USE_DATABASE}" != "false" ] && [ -f "/mnt/database/${USE_DATABASE}" ]; t
 fi
 
 # Stage file proxy.
-if [ "${ORIGIN_URL}" != "false" ]; then
+if [ -n "${ORIGIN_URL}" ]; then
   drush "$SITE_ALIAS" dl stage_file_proxy --dev
 
   drush "$SITE_ALIAS" vset stage_file_proxy_origin "${ORIGIN_URL}" -y
@@ -45,7 +45,7 @@ if [ "${ORIGIN_URL}" != "false" ]; then
 fi
 
 # Shield
-if [ "${SHIELD_USER}" != "false" ] && [ "${SHIELD_PASS}" != "false" ]; then
+if [ -n "${SHIELD_USER}" ] && [ -n "${SHIELD_PASS}" ]; then
   drush "$SITE_ALIAS" dl shield --dev
 
   drush "$SITE_ALIAS" vset shield_user "${SHIELD_USER}" -y

@@ -1,0 +1,11 @@
+name = 5b076238-867a-48c1-917b-b64b72dc44b2
+profile = DRUPAL_PROFILE
+root = web
+
+database = DATABASE_TO_IMPORT
+
+origin_url = http://example.com
+origin_dir = sites/example.com/files
+
+shield_user = example_admin
+shield_pass = example_user
