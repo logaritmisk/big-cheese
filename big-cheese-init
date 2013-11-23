@@ -10,7 +10,19 @@ test -f .ciconfig || exit 1
 
 
 # Help function to read .ciconfig file. Use .ciconfig file in current directory, if missing, use ~/.big-cheese/.ciconfig, and last use default value.
-_read() { local c=$(cat .ciconfig 2> /dev/null | grep '^\s*'$1'\s=') && echo ${c#*=} || local h=$(cat ~/.big-cheese/.ciconfig 2> /dev/null | grep '^\s*'$1'\s=') && echo ${h#*=} || echo ${2:-''}; }
+_read() {
+  local c=$(cat .ciconfig 2> /dev/null | grep '^\s*'$1'\s=')
+  if [[ -n ${c#*=} ]]; then
+    echo ${c#*=}
+  else
+    local h=$(cat ~/.big-cheese/.ciconfig 2> /dev/null | grep '^\s*'$1'\s=')
+    if [[ -n  ${h#*=} ]]; then
+      echo ${h#*=}
+    else
+      echo ${2:-''}
+    fi
+  fi
+}
 
 
 # Variables.
