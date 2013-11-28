@@ -29,7 +29,7 @@ _read() {
 NAME=$(_read name ${JOB_NAME#*-})
 PROFILE=$(_read profile ${JOB_NAME#*-})
 ROOT=$(_read root 'web')
-AEGIR_HOME=$(_read root 'aegir_home')
+AEGIR_HOME=$(_read aegir_home 'aegir_home')
 
 USE_DATABASE=$(_read database)
 
