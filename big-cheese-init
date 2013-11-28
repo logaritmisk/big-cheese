@@ -29,6 +29,7 @@ _read() {
 NAME=$(_read name ${JOB_NAME#*-})
 PROFILE=$(_read profile ${JOB_NAME#*-})
 ROOT=$(_read root 'web')
+AEGIR_HOME=$(_read root 'aegir_home')
 
 USE_DATABASE=$(_read database)
 
@@ -39,7 +40,7 @@ SHIELD_USER=$(_read shield_user)
 SHIELD_PASS=$(_read shield_pass)
 
 PLATFORM_NAME=${NAME}-build${BUILD_NUMBER}
-PLATFORM_ROOT=${JENKINS_HOME}/platforms/${PLATFORM_NAME}
+PLATFORM_ROOT=${AEGIR_HOME}/platforms/${PLATFORM_NAME}
 PLATFORM_WEB=${PLATFORM_ROOT}/${ROOT}
 PLATFORM_ALIAS=@platform_$(echo $PLATFORM_NAME | sed 's/[\.-]//g')
 
@@ -58,6 +59,8 @@ mkdir -p jenkins
 tee jenkins/properties <<EOF
 NAME = $NAME
 PROFILE = $PROFILE
+ROOT=$ROOT
+AEGIR_HOME=$AEGIR_HOME
 
 USE_DATABASE = $USE_DATABASE
 
