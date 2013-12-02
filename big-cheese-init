@@ -45,10 +45,10 @@ PLATFORM_ROOT=${AEGIR_HOME}/platforms/${PLATFORM_NAME}
 PLATFORM_WEB=${PLATFORM_ROOT}/${ROOT}
 PLATFORM_ALIAS=@platform_$(echo $PLATFORM_NAME | sed 's/[\.-]//g')
 
-SITE_BASE_URI=$(_read site_base_uri)
-SITE_URI=$(echo "${PLATFORM_NAME}.${SITE_BASE_URI}" | tr '[:upper:]' '[:lower:]')
+SITE_URI=$(echo "${PLATFORM_NAME}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]')
 SITE_CURRENT=$(echo "${NAME}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]')
 SITE_ALIAS=@$(echo $SITE_URI | sed 's/[\.-]//g')
+
 
 # Make sure there is a jenkins folder.
 mkdir -p jenkins
@@ -75,7 +75,6 @@ PLATFORM_ROOT = $PLATFORM_ROOT
 PLATFORM_WEB = $PLATFORM_WEB
 PLATFORM_ALIAS = $PLATFORM_ALIAS
 
-SITE_BASE_URI=$SITE_BASE_URI
 SITE_URI = $SITE_URI
 SITE_CURRENT = $SITE_CURRENT
 SITE_ALIAS = $SITE_ALIAS
