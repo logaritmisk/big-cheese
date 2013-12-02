@@ -30,6 +30,7 @@ NAME=$(_read name ${JOB_NAME#*-})
 PROFILE=$(_read profile ${JOB_NAME#*-})
 ROOT=$(_read root 'web')
 AEGIR_HOME=$(_read aegir_home '/var/aegir')
+SERVER_URI=$(_read server_uri 'ci.server.domain')
 
 USE_DATABASE=$(_read database)
 
@@ -45,10 +46,8 @@ PLATFORM_WEB=${PLATFORM_ROOT}/${ROOT}
 PLATFORM_ALIAS=@platform_$(echo $PLATFORM_NAME | sed 's/[\.-]//g')
 
 SITE_BASE_URI=$(_read site_base_uri)
-SITE_CURRENT_BASE_URI=$(_read site_current_base_uri)
-
 SITE_URI=$(echo "${PLATFORM_NAME}.${SITE_BASE_URI}" | tr '[:upper:]' '[:lower:]')
-SITE_CURRENT=$(echo "${NAME}-${SITE_CURRENT_BASE_URI}" | tr '[:upper:]' '[:lower:]')
+SITE_CURRENT=$(echo "${NAME}-${SERVER_URI}" | tr '[:upper:]' '[:lower:]')
 SITE_ALIAS=@$(echo $SITE_URI | sed 's/[\.-]//g')
 
 # Make sure there is a jenkins folder.
@@ -61,6 +60,7 @@ NAME = $NAME
 PROFILE = $PROFILE
 ROOT=$ROOT
 AEGIR_HOME=$AEGIR_HOME
+SERVER_URI=$SERVER_URI
 
 USE_DATABASE = $USE_DATABASE
 
@@ -76,8 +76,6 @@ PLATFORM_WEB = $PLATFORM_WEB
 PLATFORM_ALIAS = $PLATFORM_ALIAS
 
 SITE_BASE_URI=$SITE_BASE_URI
-SITE_CURRENT_BASE_URI=$SITE_CURRENT_BASE_URI
-
 SITE_URI = $SITE_URI
 SITE_CURRENT = $SITE_CURRENT
 SITE_ALIAS = $SITE_ALIAS
