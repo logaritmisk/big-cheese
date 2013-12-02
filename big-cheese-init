@@ -40,14 +40,14 @@ ORIGIN_DIR=$(_read origin_dir)
 SHIELD_USER=$(_read shield_user)
 SHIELD_PASS=$(_read shield_pass)
 
-PLATFORM_NAME=${NAME}-build${BUILD_NUMBER}
+PLATFORM_NAME=${NAME}_build${BUILD_NUMBER}
 PLATFORM_ROOT=${AEGIR_HOME}/platforms/${PLATFORM_NAME}
 PLATFORM_WEB=${PLATFORM_ROOT}/${ROOT}
 PLATFORM_ALIAS=@platform_$(echo $PLATFORM_NAME | sed 's/[\.-]//g')
 
 SITE_BASE_URI=$(_read site_base_uri)
 SITE_URI=$(echo "${PLATFORM_NAME}.${SITE_BASE_URI}" | tr '[:upper:]' '[:lower:]')
-SITE_CURRENT=$(echo "${NAME}-${SERVER_URI}" | tr '[:upper:]' '[:lower:]')
+SITE_CURRENT=$(echo "${NAME}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]')
 SITE_ALIAS=@$(echo $SITE_URI | sed 's/[\.-]//g')
 
 # Make sure there is a jenkins folder.
