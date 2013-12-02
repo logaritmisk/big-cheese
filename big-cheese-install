@@ -73,10 +73,11 @@ if [ -f ~/.big-cheese/"${SITE_CURRENT}" ]; then
   drush "${OLD_CURRENT}" provision-verify
 fi
 
+
 # Add 'current' alias to site.
-drush "${SITE_ALIAS}" provision-save \
-  --aliases="${SITE_CURRENT}" \
-  --redirection=true
+# drush "${SITE_ALIAS}" provision-save \
+#   --aliases="${SITE_CURRENT}" \
+#   --redirection=true
 
 drush "${SITE_ALIAS}" provision-verify
 
