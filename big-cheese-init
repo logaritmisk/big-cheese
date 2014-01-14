@@ -6,17 +6,31 @@ test -d ~/.big-cheese || mkdir -p ~/.big-cheese
 
 
 # Bail if there is no .ciconfig file.
-test -f .ciconfig || return 1
+test -f .ciconfig || exit 1
 
 
-# Help function to read .ciconfig file.
-_read() { local c=$(cat .ciconfig 2> /dev/null | grep '^\s*'$1'\s=') && echo ${c#*=} || echo ${2:-''}; }
+# Help function to read .ciconfig file. Use .ciconfig file in current directory, if missing, use ~/.big-cheese/.ciconfig, and last use default value.
+_read() {
+  local c=$(cat .ciconfig 2> /dev/null | grep '^\s*'$1'\s=')
+  if [[ -n ${c#*=} ]]; then
+    echo ${c#*=}
+  else
+    local h=$(cat ~/.big-cheese/.ciconfig 2> /dev/null | grep '^\s*'$1'\s=')
+    if [[ -n  ${h#*=} ]]; then
+      echo ${h#*=}
+    else
+      echo ${2:-''}
+    fi
+  fi
+}
 
 
 # Variables.
 NAME=$(_read name ${JOB_NAME#*-})
 PROFILE=$(_read profile ${JOB_NAME#*-})
 ROOT=$(_read root 'web')
+AEGIR_HOME=$(_read aegir_home '/var/aegir')
+SERVER_URI=$(_read server_uri 'ci.server.domain')
 
 USE_DATABASE=$(_read database)
 
@@ -26,14 +40,15 @@ ORIGIN_DIR=$(_read origin_dir)
 SHIELD_USER=$(_read shield_user)
 SHIELD_PASS=$(_read shield_pass)
 
-PLATFORM_NAME=${NAME}-build${BUILD_NUMBER}
-PLATFORM_ROOT=${JENKINS_HOME}/platforms/${PLATFORM_NAME}
+PLATFORM_NAME=${NAME}_build${BUILD_NUMBER}
+PLATFORM_ROOT=${AEGIR_HOME}/platforms/${PLATFORM_NAME}
 PLATFORM_WEB=${PLATFORM_ROOT}/${ROOT}
 PLATFORM_ALIAS=@platform_$(echo $PLATFORM_NAME | sed 's/[\.-]//g')
 
-SITE_URI=$(echo "${PLATFORM_NAME}.osborn.wunderkraut.com" | tr '[:upper:]' '[:lower:]')
-SITE_CURRENT=$(echo "${NAME}-current.osborn.wunderkraut.com" | tr '[:upper:]' '[:lower:]')
+SITE_URI=$(echo "${PLATFORM_NAME}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]')
+SITE_CURRENT=$(echo "${NAME}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]')
 SITE_ALIAS=@$(echo $SITE_URI | sed 's/[\.-]//g')
+
 
 # Make sure there is a jenkins folder.
 mkdir -p jenkins
@@ -43,6 +58,9 @@ mkdir -p jenkins
 tee jenkins/properties <<EOF
 NAME = $NAME
 PROFILE = $PROFILE
+ROOT=$ROOT
+AEGIR_HOME=$AEGIR_HOME
+SERVER_URI=$SERVER_URI
 
 USE_DATABASE = $USE_DATABASE
 
