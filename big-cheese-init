@@ -5,25 +5,27 @@
 test -d ~/.big-cheese || mkdir -p ~/.big-cheese
 
 
-# Bail if there is no .ciconfig file.
-test -f .ciconfig || exit 1
-
 # Try to find name of current git branch.
 # To be used in read() below.
-
+GIT_CURRENT_BRANCH=$(git symbolic-ref -q --short HEAD)
 
 
 # Help function to read .ciconfig file. Use .ciconfig file in current directory, if missing, use ~/.big-cheese/.ciconfig, and last use default value.
 _read() {
-  local c=$(cat .ciconfig 2> /dev/null | grep '^\s*'$1'\s=')
-  if [[ -n ${c#*=} ]]; then
-    echo ${c#*=}
+  local b=$(cat .ciconfig-${GIT_CURRENT_BRANCH} 2> /dev/null | grep '^\s*'$1'\s=')
+  if [[ -n ${b#*=} ]]; then
+    echo ${b#*=}
   else
-    local h=$(cat ~/.big-cheese/.ciconfig 2> /dev/null | grep '^\s*'$1'\s=')
-    if [[ -n  ${h#*=} ]]; then
-      echo ${h#*=}
+    local c=$(cat .ciconfig 2> /dev/null | grep '^\s*'$1'\s=')
+    if [[ -n ${c#*=} ]]; then
+      echo ${c#*=}
     else
-      echo ${2:-''}
+      local h=$(cat ~/.big-cheese/.ciconfig 2> /dev/null | grep '^\s*'$1'\s=')
+      if [[ -n  ${h#*=} ]]; then
+        echo ${h#*=}
+      else
+        echo ${2:-''}
+      fi
     fi
   fi
 }
