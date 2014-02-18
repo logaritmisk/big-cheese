@@ -7,7 +7,8 @@ test -d ~/.big-cheese || mkdir -p ~/.big-cheese
 
 # Try to find name of current git branch.
 # To be used in read() below.
-GIT_CURRENT_BRANCH=$(git symbolic-ref -q --short HEAD)
+GIT_CURRENT_COMMIT=$(git show | grep commit | cut -d" " -f2)
+GIT_CURRENT_BRANCH=$(git branch -r --contains ${GIT_CURRENT_COMMIT} | cut -d"/" -f2)
 
 
 # Help function to read .ciconfig file. Use .ciconfig file in current directory, if missing, use ~/.big-cheese/.ciconfig, and last use default value.
