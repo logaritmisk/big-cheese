@@ -48,7 +48,11 @@ PLATFORM_ALIAS=@platform_$(echo $PLATFORM_NAME | sed 's/[\.-]//g')
 SITE_URI=$(echo "${PLATFORM_NAME}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]')
 SITE_CURRENT=$(echo "${NAME}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]')
 SITE_ALIAS=@$(echo $SITE_URI | sed 's/[\.-]//g')
-
+# Check if we can find drush alias for last installation of site.
+SITE_LAST_INSTALL=""
+if [ -f ~/.big-cheese/"${SITE_CURRENT}" ]; then
+  SITE_LAST_INSTALL=$(cat ~/.big-cheese/"${SITE_CURRENT}")
+fi
 
 # Make sure there is a jenkins folder.
 mkdir -p jenkins
