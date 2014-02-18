@@ -8,6 +8,10 @@ test -d ~/.big-cheese || mkdir -p ~/.big-cheese
 # Bail if there is no .ciconfig file.
 test -f .ciconfig || exit 1
 
+# Try to find name of current git branch.
+# To be used in read() below.
+
+
 
 # Help function to read .ciconfig file. Use .ciconfig file in current directory, if missing, use ~/.big-cheese/.ciconfig, and last use default value.
 _read() {
@@ -39,6 +43,7 @@ ORIGIN_DIR=$(_read origin_dir)
 
 SHIELD_USER=$(_read shield_user)
 SHIELD_PASS=$(_read shield_pass)
+SHIELD_WHITELIST=$(_read shield_whitelist)
 
 PLATFORM_NAME=${NAME}_build${BUILD_NUMBER}
 PLATFORM_ROOT=${AEGIR_HOME}/platforms/${PLATFORM_NAME}
@@ -73,6 +78,7 @@ ORIGIN_DIR = $ORIGIN_DIR
 
 SHIELD_USER = $SHIELD_USER
 SHIELD_PASS = $SHIELD_PASS
+SHIELD_WHITELIST = $SHIELD_WHITELIST
 
 PLATFORM_NAME = $PLATFORM_NAME
 PLATFORM_ROOT = $PLATFORM_ROOT
