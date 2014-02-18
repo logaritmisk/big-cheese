@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+set -v
+
+# Empty all caches.
+drush "${SITE_ALIAS}" cc all
+
+# Update database.
+drush "${SITE_ALIAS}" updb -y
