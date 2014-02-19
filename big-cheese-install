@@ -52,7 +52,8 @@ if [ -n "${SHIELD_USER}" ] && [ -n "${SHIELD_PASS}" ]; then
   drush "$SITE_ALIAS" vset shield_pass "${SHIELD_PASS}" -y
   drush "$SITE_ALIAS" vset shield_print "" -y
   if [ -n "${SHIELD_WHITELIST}" ]; then
-    php -r "print json_encode(array(${SHIELD_WHITELIST}));"  | drush "$SITE_ALIAS" vset --format=json shield_ignored_addresses  -
+    SHIELD_WHITELIST_ARRAY=(${SHIELD_WHITELIST})
+    drush "$SITE_ALIAS" vset shield_ignored_addresses "$(IFS=$'\n' ; echo "${SHIELD_WHITELIST_ARRAY[*]}")"
   fi
 
   drush "$SITE_ALIAS" en shield -y
