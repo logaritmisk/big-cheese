@@ -60,7 +60,7 @@ PLATFORM_ROOT_LAST_INSTALL=""
 if [ -f ~/.big-cheese/"${SITE_CURRENT}" ]; then
   SITE_LAST_INSTALL=$(cat ~/.big-cheese/"${SITE_CURRENT}")
   SERVER_URI_STRIPPED=$(echo $SERVER_URI | sed 's/[\.-]//g')
-  PLATFORM_NAME_LAST_INSTALL=$(echo "${SITE_LAST_INSTALL}" | sed 's/${SERVER_URI_STRIPPED}//g' | sed 's/\@//g')
+  PLATFORM_NAME_LAST_INSTALL=$(echo "${SITE_LAST_INSTALL}" | sed "s/${SERVER_URI_STRIPPED}//g" | sed 's/\@//g')
   PLATFORM_ROOT_LAST_INSTALL=${AEGIR_HOME}/platforms/${PLATFORM_NAME_LAST_INSTALL}
 fi
 
