@@ -3,6 +3,9 @@
 set -e
 set -v
 
+# Copy new code to platform root of last installation.
+cp -R $WORKSPACE $PLATFORM_ROOT_LAST_INSTALL
+
 # Empty all caches.
 drush "${SITE_LAST_INSTALL}" cc all
 

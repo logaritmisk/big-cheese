@@ -55,13 +55,17 @@ SITE_CURRENT=$(echo "${NAME}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]')
 SITE_ALIAS=@$(echo $SITE_URI | sed 's/[\.-]//g')
 # Check if we can find drush alias for last installation of site.
 SITE_LAST_INSTALL=""
+PLATFORM_NAME_LAST_INSTALL=""
+PLATFORM_ROOT_LAST_INSTALL=""
 if [ -f ~/.big-cheese/"${SITE_CURRENT}" ]; then
   SITE_LAST_INSTALL=$(cat ~/.big-cheese/"${SITE_CURRENT}")
+  SERVER_URI_STRIPPED=$(echo $SERVER_URI | sed 's/[\.-]//g')
+  PLATFORM_NAME_LAST_INSTALL=$(echo "${SITE_LAST_INSTALL}" | sed 's/${SERVER_URI_STRIPPED}//g' | sed 's/\@//g')
+  PLATFORM_ROOT_LAST_INSTALL=${AEGIR_HOME}/platforms/${PLATFORM_NAME_LAST_INSTALL}
 fi
 
 # Make sure there is a jenkins folder.
 mkdir -p jenkins
-
 
 # Save variables as properties.
 tee jenkins/properties <<EOF
@@ -88,5 +92,8 @@ PLATFORM_ALIAS = $PLATFORM_ALIAS
 SITE_URI = $SITE_URI
 SITE_CURRENT = $SITE_CURRENT
 SITE_ALIAS = $SITE_ALIAS
+
 SITE_LAST_INSTALL = $SITE_LAST_INSTALL
+PLATFORM_NAME_LAST_INSTALL = $PLATFORM_NAME_LAST_INSTALL
+PLATFORM_ROOT_LAST_INSTALL = $PLATFORM_ROOT_LAST_INSTALL
 EOF
