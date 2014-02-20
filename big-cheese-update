@@ -4,18 +4,18 @@ set -e
 set -v
 
 # Protect sites folder.
-mv $PLATFORM_ROOT_LAST_INSTALL/web/sites $PLATFORM_ROOT_LAST_INSTALL/
+mv $PLATFORM_ROOT_LAST/web/sites $PLATFORM_ROOT_LAST/
 
 # Replace platform code of last installation.
-rm -rf $PLATFORM_ROOT_LAST_INSTALL/web
-cp -R $WORKSPACE/web $PLATFORM_ROOT_LAST_INSTALL/
+rm -rf $PLATFORM_ROOT_LAST/web
+cp -R $WORKSPACE/web $PLATFORM_ROOT_LAST/
 
 # Put protected sites folder back.
-rm -rf $PLATFORM_ROOT_LAST_INSTALL/web/sites
-mv $PLATFORM_ROOT_LAST_INSTALL/sites $PLATFORM_ROOT_LAST_INSTALL/web/sites
+rm -rf $PLATFORM_ROOT_LAST/web/sites
+mv $PLATFORM_ROOT_LAST/sites $PLATFORM_ROOT_LAST/web/sites
 
 # Empty all caches.
-drush "${SITE_LAST_INSTALL}" cc all
+drush "${SITE_LAST}" cc all
 
 # Update database.
-drush "${SITE_LAST_INSTALL}" updb -y
+drush "${SITE_LAST}" updb -y
