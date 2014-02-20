@@ -3,7 +3,8 @@
 set -e
 set -v
 
-# Copy new code to platform root of last installation.
+# Replace platform code of last installation.
+rm -rf $PLATFORM_ROOT_LAST_INSTALL
 cp -R $WORKSPACE $PLATFORM_ROOT_LAST_INSTALL
 
 # Empty all caches.
