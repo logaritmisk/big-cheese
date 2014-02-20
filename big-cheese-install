@@ -77,9 +77,9 @@ if [ -n "${SITE_LAST}" ]; then
 fi
 
 # Add 'current' alias to site.
- drush "${SITE_ALIAS}" provision-save \
-   --aliases="${SITE_CURRENT}" \
-   --redirection=true
+drush "${SITE_ALIAS}" provision-save \
+  --aliases="${SITE_CURRENT}" \
+  --redirection=true
 
 drush "${SITE_ALIAS}" provision-verify
 
