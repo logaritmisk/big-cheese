@@ -8,7 +8,7 @@ mv $PLATFORM_ROOT_LAST_INSTALL/web/sites $PLATFORM_ROOT_LAST_INSTALL/
 
 # Replace platform code of last installation.
 rm -rf $PLATFORM_ROOT_LAST_INSTALL/web
-cp -R $WORKSPACE/web $PLATFORM_ROOT_LAST_INSTALL/web
+cp -R $WORKSPACE/web $PLATFORM_ROOT_LAST_INSTALL/
 
 # Put protected sites folder back.
 rm -rf $PLATFORM_ROOT_LAST_INSTALL/web/sites
