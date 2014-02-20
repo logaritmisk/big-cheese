@@ -65,18 +65,16 @@ ADMIN_ACCOUNT=$(drush "$SITE_ALIAS" uinf 1 | awk '/User name/{print $4}')
 # Change admin password.
 drush "$SITE_ALIAS" upwd "${ADMIN_ACCOUNT:-admin}" --password=nimda
 
-# Check if we can find a old current.
-if [ -f ~/.big-cheese/"${SITE_CURRENT}" ]; then
-  OLD_CURRENT=$(cat ~/.big-cheese/"${SITE_CURRENT}")
+# Remove old current site alias.
+if [ -n "${SITE_LAST}" ]; then
 
-  # Add 'current' alias to site.
-  drush "${OLD_CURRENT}" provision-save \
+  # Remove old 'current' alias to site.
+  drush "${SITE_LAST}" provision-save \
     --aliases=","
 
-  # Verify to 'remove' alias from vhost.
-  drush "${OLD_CURRENT}" provision-verify
+  # Verify to remove alias from vhost.
+  drush "${SITE_LAST}" provision-verify
 fi
-
 
 # Add 'current' alias to site.
  drush "${SITE_ALIAS}" provision-save \
