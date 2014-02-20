@@ -21,7 +21,7 @@ drush provision-save "${SITE_ALIAS}" \
 
 
 # Clone site with provision.
-drush @${SITE_LAST} provision-clone "${SITE_ALIAS}" "${PLATFORM_ALIAS}"
+drush "${SITE_LAST}" provision-clone "${SITE_ALIAS}" "${PLATFORM_ALIAS}"
 
 # Remove old current site alias.
 if [ -n "${SITE_LAST}" ]; then
