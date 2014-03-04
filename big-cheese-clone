@@ -23,6 +23,26 @@ drush provision-save "${SITE_ALIAS}" \
 # Clone site with provision.
 drush "${SITE_LAST}" provision-clone "${SITE_ALIAS}" "${PLATFORM_ALIAS}"
 
+
+# Because of bug in provision-clone
+# we need to fix site uri and site path after clone.
+BROKEN_SITE_URI=$SITE_ALIAS
+
+## 1. Remove broken vhost for new site.
+rm -f ${AEGIR_HOME}/config/server_master/apache/vhost.d/${BROKEN_SITE_URI}
+
+## 2. Rename site folder to make new site work again.
+mv ${PLATFORM_WEB}/sites/${BROKEN_SITE_URI} ${PLATFORM_WEB}/sites/${SITE_URI}
+
+## 3. Fix site uri and site path in drush alias for new site.
+drush provision-save "${SITE_ALIAS}" \
+  --uri="${SITE_URI}" \
+  -- site_path="${PLATFORM_WEB}/sites/${SITE_URI}"
+
+## 4. Verify new site again to generate correct vhost file.
+drush provision-verify "${SITE_ALIAS}"
+
+
 # Remove old current site alias.
 if [ -n "${SITE_LAST}" ]; then
 
