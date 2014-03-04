@@ -26,7 +26,7 @@ drush "${SITE_LAST}" provision-clone "${SITE_ALIAS}" "${PLATFORM_ALIAS}"
 
 # Because of bug in provision-clone
 # we need to fix site uri and site path after clone.
-BROKEN_SITE_URI=$SITE_ALIAS
+BROKEN_SITE_URI=$(echo $SITE_ALIAS | sed 's/\@//g')
 
 ## 1. Remove broken vhost for new site.
 rm -f ${AEGIR_HOME}/config/server_master/apache/vhost.d/${BROKEN_SITE_URI}
