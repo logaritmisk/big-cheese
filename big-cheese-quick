@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -e
+set -v
+
+# Quick deploy of new code (core + profile). But first backup.
+mv ${QUICK_BUILD_PATH} ${QUICK_BACKUP_PATH}
+mkdir -p "${QUICK_BUILD_PATH}/${ROOT}"
+rsync -a "${ROOT}/" "${QUICK_BUILD_PATH}/${ROOT}"
+rm -rf "${QUICK_BUILD_PATH}/${ROOT}/sites"
+mv "${QUICK_BACKUP_PATH}/${ROOT}/sites" "${QUICK_BUILD_PATH}/${ROOT}"
+
+
+if $UPDATEDB ; then
+  drush  "${QUICK_SITE_DRUSH_ALIAS}" vset maintenance_mode -y 1 
+fi
+
+drush  "${QUICK_SITE_DRUSH_ALIAS}" sql-dump > "${QUICK_BACKUP_PATH}/dump.sql"
+drush  "${QUICK_PLATFORM_DRUSH_ALIAS}" provision-verify -v
+
+if $UPDATEDB ; then
+  drush  "${QUICK_SITE_DRUSH_ALIAS}" updatedb -y
+fi
+
+drush  "${QUICK_SITE_DRUSH_ALIAS}" cc all
+drush  "${QUICK_SITE_DRUSH_ALIAS}" vset maintenance_mode -y 0
