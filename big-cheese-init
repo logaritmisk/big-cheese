@@ -4,30 +4,36 @@
 # Create big-cheese home.
 test -d ~/.big-cheese || mkdir -p ~/.big-cheese
 
+# Optional set .ciconfig file suffix with input parameter.
+CICONFIG_SUFFIX=$1
 
 # Get the name of current git branch. GIT_BRANCH is provided by Jenkins.
 GIT_CURRENT_BRANCH=$(echo ${GIT_BRANCH} | cut -d"/" -f2)
 
 # Help function to read .ciconfig file. Use .ciconfig file in current directory, if missing, use ~/.big-cheese/.ciconfig, and last use default value.
 _read() {
-  local b=$(cat .ciconfig-${GIT_CURRENT_BRANCH} 2> /dev/null | grep '^\s*'$1'\s=')
-  if [[ -n ${b#*=} ]]; then
-    echo ${b#*=}
+  local p=$(cat .ciconfig-${CICONFIG_SUFFIX} 2> /dev/null | grep '^\s*'$1'\s=')
+  if [[ -n ${p#*=} ]]; then
+    echo ${p#*=}
   else
-    local c=$(cat .ciconfig 2> /dev/null | grep '^\s*'$1'\s=')
-    if [[ -n ${c#*=} ]]; then
-      echo ${c#*=}
+    local b=$(cat .ciconfig-${GIT_CURRENT_BRANCH} 2> /dev/null | grep '^\s*'$1'\s=')
+    if [[ -n ${b#*=} ]]; then
+      echo ${b#*=}
     else
-      local h=$(cat ~/.big-cheese/.ciconfig 2> /dev/null | grep '^\s*'$1'\s=')
-      if [[ -n  ${h#*=} ]]; then
-        echo ${h#*=}
+      local c=$(cat .ciconfig 2> /dev/null | grep '^\s*'$1'\s=')
+      if [[ -n ${c#*=} ]]; then
+        echo ${c#*=}
       else
-        echo ${2:-''}
+        local h=$(cat ~/.big-cheese/.ciconfig 2> /dev/null | grep '^\s*'$1'\s=')
+        if [[ -n  ${h#*=} ]]; then
+          echo ${h#*=}
+        else
+          echo ${2:-''}
+        fi
       fi
     fi
   fi
 }
-
 
 # Variables.
 NAME=$(_read name ${JOB_NAME#*-})
@@ -35,6 +41,15 @@ PROFILE=$(_read profile ${JOB_NAME#*-})
 ROOT=$(_read root 'web')
 AEGIR_HOME=$(_read aegir_home '/var/aegir')
 SERVER_URI=$(_read server_uri 'ci.server.domain')
+SITE_ALIAS_REDIRECTION=$(_read site_alias_redirection 'true')
+BUILD_NUMBER_PLATFORM=${BUILD_NUMBER}
+BUILD_NUMBER_QUICK_BACKUP=${BUILD_NUMBER}
+if [ -n "${QUICK_PLATFORM_NUMBER}" ]; then
+  BUILD_NUMBER_PLATFORM=${QUICK_PLATFORM_NUMBER}
+fi
+if [ -n "${QUICK_BACKUP_NUMBER}" ]; then
+  BUILD_NUMBER_QUICK_BACKUP=${QUICK_BACKUP_NUMBER}
+fi
 
 USE_DATABASE=$(_read database)
 
@@ -45,8 +60,9 @@ SHIELD_USER=$(_read shield_user)
 SHIELD_PASS=$(_read shield_pass)
 SHIELD_WHITELIST=$(_read shield_whitelist)
 
-PLATFORM_NAME=${NAME}_build${BUILD_NUMBER}
-PLATFORM_ROOT=${AEGIR_HOME}/platforms/${PLATFORM_NAME}
+PLATFORM_NAME=${NAME}_build${BUILD_NUMBER_PLATFORM}
+PLATFORM_BASE_PATH=$(_read platform_base_path ${AEGIR_HOME}/platforms)
+PLATFORM_ROOT=${PLATFORM_BASE_PATH}/${PLATFORM_NAME}
 PLATFORM_WEB=${PLATFORM_ROOT}/${ROOT}
 PLATFORM_ALIAS=@platform_$(echo $PLATFORM_NAME | sed 's/[\.-]//g')
 
@@ -64,6 +80,14 @@ if [ -f ~/.big-cheese/"${SITE_CURRENT}" ]; then
   PLATFORM_ROOT_LAST=${AEGIR_HOME}/platforms/${PLATFORM_NAME_LAST}
 fi
 
+QUICK_SITE_URI=$(_read quick_site_uri $(echo "${PLATFORM_NAME}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]'))
+QUICK_SITE_DRUSH_ALIAS=@$(echo ${QUICK_SITE_URI} | sed 's/[\.-]//g')
+QUICK_DRUPAL_ROOT=$(drush site-alias ${QUICK_SITE_DRUSH_ALIAS} --component=root --strict=0 2> /dev/null)
+QUICK_BUILD_PATH=${QUICK_DRUPAL_ROOT%/$ROOT}
+QUICK_PLATFORM_DRUSH_ALIAS=$(drush site-alias ${QUICK_SITE_DRUSH_ALIAS} --component=platform --strict=0 2> /dev/null)
+QUICK_JOB_NAME=$(_read quick_job_name ${JOB_NAME})
+QUICK_BACKUP_PATH="${AEGIR_HOME}/backups/${QUICK_JOB_NAME}-${BUILD_NUMBER_QUICK_BACKUP}-${QUICK_SITE_URI}"
+
 # Make sure there is a jenkins folder.
 mkdir -p jenkins
 
@@ -71,9 +95,11 @@ mkdir -p jenkins
 tee jenkins/properties <<EOF
 NAME = $NAME
 PROFILE = $PROFILE
-ROOT=$ROOT
-AEGIR_HOME=$AEGIR_HOME
-SERVER_URI=$SERVER_URI
+ROOT = $ROOT
+AEGIR_HOME = $AEGIR_HOME
+SERVER_URI = $SERVER_URI
+SITE_ALIAS_REDIRECTION = $SITE_ALIAS_REDIRECTION
+BUILD_NUMBER_TO_USE = $BUILD_NUMBER_TO_USE
 
 USE_DATABASE = $USE_DATABASE
 
@@ -85,6 +111,7 @@ SHIELD_PASS = $SHIELD_PASS
 SHIELD_WHITELIST = $SHIELD_WHITELIST
 
 PLATFORM_NAME = $PLATFORM_NAME
+PLATFORM_BASE_PATH = $PLATFORM_BASE_PATH
 PLATFORM_ROOT = $PLATFORM_ROOT
 PLATFORM_WEB = $PLATFORM_WEB
 PLATFORM_ALIAS = $PLATFORM_ALIAS
@@ -96,4 +123,12 @@ SITE_ALIAS = $SITE_ALIAS
 SITE_LAST = $SITE_LAST
 PLATFORM_NAME_LAST = $PLATFORM_NAME_LAST
 PLATFORM_ROOT_LAST = $PLATFORM_ROOT_LAST
+
+QUICK_SITE_URI = $QUICK_SITE_URI
+QUICK_SITE_DRUSH_ALIAS = $QUICK_SITE_DRUSH_ALIAS
+QUICK_DRUPAL_ROOT = $QUICK_DRUPAL_ROOT
+QUICK_BUILD_PATH = $QUICK_BUILD_PATH
+QUICK_PLATFORM_DRUSH_ALIAS = $QUICK_PLATFORM_DRUSH_ALIAS
+QUICK_BACKUP_PATH = $QUICK_BACKUP_PATH
+QUICK_JOB_NAME = $QUICK_JOB_NAME
 EOF
