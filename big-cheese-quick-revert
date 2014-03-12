@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -e
+set -v
+
+# Set site in maintenance mode
+drush  "${QUICK_SITE_DRUSH_ALIAS}" vset maintenance_mode -y 1
+
+# Temporary move sites folder
+mkdir -p "${JENKINS_HOME}/jobs/${PLATFORM_NAME}-SITES"
+mv "${QUICK_BUILD_PATH}/${ROOT}/sites" "${JENKINS_HOME}/jobs/${PLATFORM_NAME}-SITES"
+
+# Revert code from latest quick deploy.
+rm -rf "${QUICK_BUILD_PATH}/*"
+rsync -a "${QUICK_BACKUP_PATH}/" "${QUICK_BUILD_PATH}"
+mv "${JENKINS_HOME}/jobs/${PLATFORM_NAME}-SITES/sites" "${QUICK_BUILD_PATH}/${ROOT}/"
+
+# Back up messed up database for analysis
+drush  "${QUICK_SITE_DRUSH_ALIAS}" sql-dump > "${QUICK_BACKUP_PATH}/dump-${JOB_NAME}-${BUILD_NUMBER}.sql"
+
+# Restore database
+drush  "${QUICK_SITE_DRUSH_ALIAS}" sql-cli < "${QUICK_BACKUP_PATH}/dump.sql"
+drush  "${QUICK_PLATFORM_DRUSH_ALIAS}" provision-verify -v
+
+# Get site live again
+drush  "${QUICK_SITE_DRUSH_ALIAS}" cc all
+drush  "${QUICK_SITE_DRUSH_ALIAS}" vset maintenance_mode -y 0
