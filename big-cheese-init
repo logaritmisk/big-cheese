@@ -45,10 +45,10 @@ SITE_ALIAS_REDIRECTION=$(_read site_alias_redirection 'true')
 BUILD_NUMBER_PLATFORM_TO_USE=${BUILD_NUMBER}
 BUILD_NUMBER_QUICK_BACKUP=${BUILD_NUMBER}
 if [ -n "${BUILD_NUMBER_PLATFORM}" ]; then
-  BUILD_NUMBER_PLATFORM_TO_USE=${QUICK_PLATFORM_NUMBER}
+  BUILD_NUMBER_PLATFORM_TO_USE=${BUILD_NUMBER_PLATFORM}
 fi
 if [ -n "${BUILD_NUMBER_QUICK_DEPLOY}" ]; then
-  BUILD_NUMBER_QUICK_BACKUP=${QUICK_BACKUP_NUMBER}
+  BUILD_NUMBER_QUICK_BACKUP=${BUILD_NUMBER_QUICK_DEPLOY}
 fi
 
 USE_DATABASE=$(_read database)
@@ -66,7 +66,7 @@ PLATFORM_ROOT=${PLATFORM_BASE_PATH}/${PLATFORM_NAME}
 PLATFORM_WEB=${PLATFORM_ROOT}/${ROOT}
 PLATFORM_ALIAS=@platform_$(echo $PLATFORM_NAME | sed 's/[\.-]//g')
 
-SITE_URI=$(echo "${PLATFORM_NAME}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]')
+SITE_URI=$(_read site_uri $(echo "${PLATFORM_NAME}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]'))
 SITE_CURRENT=$(echo "${NAME}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]')
 SITE_ALIAS=@$(echo $SITE_URI | sed 's/[\.-]//g')
 # Check if we can find drush alias for last site.
