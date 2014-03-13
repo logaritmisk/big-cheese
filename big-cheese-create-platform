@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -e
+set -v
+
+# Copy platform to platform root.
+cp -R $WORKSPACE $PLATFORM_ROOT
+
+# Save platform with provision.
+drush provision-save "${PLATFORM_ALIAS}" \
+  --context_type=platform \
+  --root="${PLATFORM_WEB}"
+
+# Verify platform.
+drush "$PLATFORM_ALIAS" provision-verify -v
