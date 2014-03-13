@@ -65,30 +65,32 @@ ADMIN_ACCOUNT=$(drush "$SITE_ALIAS" uinf 1 | awk '/User name/{print $4}')
 # Change admin password.
 drush "$SITE_ALIAS" upwd "${ADMIN_ACCOUNT:-admin}" --password=nimda
 
-# Remove old current site alias.
-if [ -n "${SITE_LAST}" ]; then
+if [ -n "${SITE_CURRENT}" ]; then
+  # Remove old current site alias.
+  if [ -n "${SITE_LAST}" ]; then
 
-  # Remove old 'current' alias to site.
-  drush "${SITE_LAST}" provision-save \
-    --aliases=","
+    # Remove old 'current' alias to site.
+    drush "${SITE_LAST}" provision-save \
+      --aliases=","
 
-  # Verify to remove alias from vhost.
-  drush "${SITE_LAST}" provision-verify
+    # Verify to remove alias from vhost.
+    drush "${SITE_LAST}" provision-verify
+  fi
+
+  # Add 'current' alias to site.
+  REDIRECTION_STATEMENT="--redirection=1"
+  if [ "${SITE_ALIAS_REDIRECTION}" == "false" ]; then
+    REDIRECTION_STATEMENT="--redirection=0"
+  fi
+  drush "${SITE_ALIAS}" provision-save \
+    --aliases="${SITE_CURRENT}" \
+    ${REDIRECTION_STATEMENT}
+
+  drush "${SITE_ALIAS}" provision-verify
+
+  # Save alias to current.
+  echo "${SITE_ALIAS}" > ~/.big-cheese/"${SITE_CURRENT}"
 fi
-
-# Add 'current' alias to site.
-REDIRECTION_STATEMENT="--redirection=1"
-if [ "${SITE_ALIAS_REDIRECTION}" == "false" ]; then
-  REDIRECTION_STATEMENT="--redirection=0"
-fi
-drush "${SITE_ALIAS}" provision-save \
-  --aliases="${SITE_CURRENT}" \
-  ${REDIRECTION_STATEMENT}
-
-drush "${SITE_ALIAS}" provision-verify
-
-# Save alias to current.
-echo "${SITE_ALIAS}" > ~/.big-cheese/"${SITE_CURRENT}"
 
 # Verify platform.
 drush "$PLATFORM_ALIAS" provision-verify -v

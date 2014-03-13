@@ -67,7 +67,7 @@ PLATFORM_WEB=${PLATFORM_ROOT}/${ROOT}
 PLATFORM_ALIAS=@platform_$(echo $PLATFORM_NAME | sed 's/[\.-]//g')
 
 SITE_URI=$(_read site_uri $(echo "${PLATFORM_NAME}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]'))
-SITE_CURRENT=$(echo "${NAME}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]')
+SITE_CURRENT=$(_read site_current $(echo "${NAME}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]'))
 SITE_ALIAS=@$(echo $SITE_URI | sed 's/[\.-]//g')
 # Check if we can find drush alias for last site.
 SITE_LAST=""
