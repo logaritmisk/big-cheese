@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -e
+set -v
+
+# Migrate site
+drush "${SITE_ALIAS}" provision-migrate "${PLATFORM_ALIAS}" --profile="${PROFILE}"
