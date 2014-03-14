@@ -4,23 +4,30 @@
 # Create big-cheese home.
 test -d ~/.big-cheese || mkdir -p ~/.big-cheese
 
+# Configuration files can be in folder.
+CONFIG_FOLDER=""
+if [ -d ".big-cheese" ]; then
+  CONFIG_FOLDER=".big-cheese/"
+fi
+
 # Optional set .ciconfig file suffix with input parameter.
 CICONFIG_SUFFIX=$1
 
 # Get the name of current git branch. GIT_BRANCH is provided by Jenkins.
 GIT_CURRENT_BRANCH=$(echo ${GIT_BRANCH} | cut -d"/" -f2)
 
-# Help function to read .ciconfig file. Use .ciconfig file in current directory, if missing, use ~/.big-cheese/.ciconfig, and last use default value.
+# Help function to read .ciconfig file.
+# Use .ciconfig file (with or without specific suffix) in current directory (or subfolder called .big-cheese), if missing, use ~/.big-cheese/.ciconfig, and last use default value.
 _read() {
-  local p=$(cat .ciconfig-${CICONFIG_SUFFIX} 2> /dev/null | grep '^\s*'$1'\s=')
+  local p=$(cat ${CONFIG_FOLDER}.ciconfig-${CICONFIG_SUFFIX} 2> /dev/null | grep '^\s*'$1'\s=')
   if [[ -n ${p#*=} ]]; then
     echo ${p#*=}
   else
-    local b=$(cat .ciconfig-${GIT_CURRENT_BRANCH} 2> /dev/null | grep '^\s*'$1'\s=')
+    local b=$(cat ${CONFIG_FOLDER}.ciconfig-${GIT_CURRENT_BRANCH} 2> /dev/null | grep '^\s*'$1'\s=')
     if [[ -n ${b#*=} ]]; then
       echo ${b#*=}
     else
-      local c=$(cat .ciconfig 2> /dev/null | grep '^\s*'$1'\s=')
+      local c=$(cat ${CONFIG_FOLDER}.ciconfig 2> /dev/null | grep '^\s*'$1'\s=')
       if [[ -n ${c#*=} ]]; then
         echo ${c#*=}
       else
