@@ -9,6 +9,7 @@ cp -R $WORKSPACE $PLATFORM_ROOT
 # Save platform with provision.
 drush provision-save "${PLATFORM_ALIAS}" \
   --context_type=platform \
+  --web_server="${SITE_WEB_SERVER}" \
   --root="${PLATFORM_WEB}"
 
 # Save site with provision.

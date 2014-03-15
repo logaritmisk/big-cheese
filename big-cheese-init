@@ -86,6 +86,7 @@ if [ -f ~/.big-cheese/"${SITE_CURRENT}" ]; then
   PLATFORM_NAME_LAST=$(echo "${SITE_LAST}" | sed "s/${SERVER_URI_STRIPPED}//g" | sed 's/\@//g')
   PLATFORM_ROOT_LAST=${AEGIR_HOME}/platforms/${PLATFORM_NAME_LAST}
 fi
+SITE_WEB_SERVER=$(_read site_web_server 'server_master')
 SITE_DB_SERVER=$(_read site_db_server 'server_localhost')
 
 QUICK_SITE_URI=$(_read quick_site_uri $(echo "${PLATFORM_NAME}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]'))
@@ -127,6 +128,7 @@ PLATFORM_ALIAS = $PLATFORM_ALIAS
 SITE_URI = $SITE_URI
 SITE_CURRENT = $SITE_CURRENT
 SITE_ALIAS = $SITE_ALIAS
+SITE_WEB_SERVER = $SITE_WEB_SERVER
 SITE_DB_SERVER = $SITE_DB_SERVER
 
 SITE_LAST = $SITE_LAST
