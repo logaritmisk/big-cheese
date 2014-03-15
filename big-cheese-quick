@@ -6,10 +6,9 @@ set -v
 # Quick deploy of new code (core + profile). But first backup.
 mv ${QUICK_BUILD_PATH} ${QUICK_BACKUP_PATH}
 mkdir -p "${QUICK_BUILD_PATH}/${ROOT}"
-rsync -a "${ROOT}/" "${QUICK_BUILD_PATH}/${ROOT}"
+rsync -a "${WORKSPACE}/${ROOT}/" "${QUICK_BUILD_PATH}/${ROOT}"
 rm -rf "${QUICK_BUILD_PATH}/${ROOT}/sites"
 mv "${QUICK_BACKUP_PATH}/${ROOT}/sites" "${QUICK_BUILD_PATH}/${ROOT}"
-
 
 if $UPDATEDB ; then
   drush  "${QUICK_SITE_DRUSH_ALIAS}" vset maintenance_mode -y 1 
