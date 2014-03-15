@@ -37,7 +37,7 @@ mv ${PLATFORM_WEB}/sites/${BROKEN_SITE_URI} ${PLATFORM_WEB}/sites/${SITE_URI}
 ## 3. Fix site uri and site path in drush alias for new site.
 drush provision-save "${SITE_ALIAS}" \
   --uri="${SITE_URI}" \
-  -- site_path="${PLATFORM_WEB}/sites/${SITE_URI}"
+  --site_path="${PLATFORM_WEB}/sites/${SITE_URI}"
 
 ## 4. Verify new site again to generate correct vhost file.
 drush provision-verify "${SITE_ALIAS}"
