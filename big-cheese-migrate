@@ -5,7 +5,7 @@ set -v
 
 # Back up database
 BACKUP_PATH="${AEGIR_HOME}/backups/${JOB_NAME}-${BUILD_NUMBER}-${SITE_URI}"
-mkdir "${AEGIR_HOME}/backups/${JOB_NAME}-${BUILD_NUMBER}-${SITE_URI}"
+mkdir "${BACKUP_PATH}"
 drush  "${SITE_ALIAS}" sql-dump > "${BACKUP_PATH}/dump.sql"
 
 # Migrate site
