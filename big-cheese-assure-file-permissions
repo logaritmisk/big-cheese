@@ -5,13 +5,6 @@ set -v
 
 SITE_PATH=$(drush site-alias ${SITE_ALIAS} --component=site_path --strict=0 2> /dev/null)
 
-# Debug
-echo $SITE_PATH
-cd $SITE_PATH
-ls -lha
-whoami
-groups $(whoami)
-
 # Files folder
 chown -R aegir:www-data "${SITE_PATH}/files"
 chmod -R 775 "${SITE_PATH}/files"
