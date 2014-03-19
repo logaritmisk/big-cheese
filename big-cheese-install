@@ -64,7 +64,7 @@ fi
 ADMIN_ACCOUNT=$(drush "$SITE_ALIAS" uinf 1 | awk '/User name/{print $4}')
 
 # Change admin password.
-drush "$SITE_ALIAS" upwd "${ADMIN_ACCOUNT:-admin}" --password=nimda
+drush "$SITE_ALIAS" upwd "${ADMIN_ACCOUNT:-admin}" --password="${SITE_ADMIN_PASSWORD}"
 
 if [ -n "${SITE_CURRENT}" ]; then
   # Remove old current site alias.
