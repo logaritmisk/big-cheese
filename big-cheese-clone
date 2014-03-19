@@ -45,3 +45,7 @@ echo "${SITE_ALIAS}" > ~/.big-cheese/"${SITE_CURRENT}"
 
 # Verify platform.
 drush "$PLATFORM_ALIAS" provision-verify -v
+
+
+# Assure file permissions
+big-cheese-assure-file-permissions
