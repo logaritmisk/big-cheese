@@ -11,6 +11,7 @@ if [ -d ".big-cheese" ]; then
 fi
 
 # Optional set .ciconfig file suffix with input parameter.
+CICONFIG_SUFFIX=""
 CICONFIG_SUFFIX=$1
 
 # Get the name of current git branch. GIT_BRANCH is provided by Jenkins.
@@ -43,8 +44,8 @@ _read() {
 }
 
 # Variables.
-NAME=$(_read name ${JOB_NAME#*-})
-PROFILE=$(_read profile ${JOB_NAME#*-})
+NAME=$(_read name ${JOB_NAME})
+PROFILE=$(_read profile ${JOB_NAME%%-*})
 ROOT=$(_read root 'web')
 AEGIR_HOME=$(_read aegir_home '/var/aegir')
 SERVER_URI=$(_read server_uri 'ci.server.domain')
@@ -67,15 +68,15 @@ SHIELD_USER=$(_read shield_user)
 SHIELD_PASS=$(_read shield_pass)
 SHIELD_WHITELIST=$(_read shield_whitelist)
 
-PLATFORM_NAME=${NAME}_build${BUILD_NUMBER_PLATFORM_TO_USE}
+PLATFORM_NAME=$(echo "${NAME}_${BUILD_NUMBER_PLATFORM_TO_USE}" | tr '[:upper:]' '[:lower:]' | sed 's/[\.-]/_/g')
 PLATFORM_BASE_PATH=$(_read platform_base_path ${AEGIR_HOME}/platforms)
 PLATFORM_ROOT=${PLATFORM_BASE_PATH}/${PLATFORM_NAME}
 PLATFORM_WEB=${PLATFORM_ROOT}/${ROOT}
-PLATFORM_ALIAS=@platform_$(echo $PLATFORM_NAME | sed 's/[\.-]//g')
+PLATFORM_ALIAS="@platform_${PLATFORM_NAME}"
 
-SITE_URI=$(_read site_uri $(echo "${PLATFORM_NAME}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]'))
-SITE_CURRENT=$(_read site_current $(echo "${NAME}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]'))
-SITE_ALIAS=@$(echo $SITE_URI | sed 's/[\.-]//g')
+SITE_URI=$(_read site_uri $(echo "${NAME}${BUILD_NUMBER_PLATFORM_TO_USE}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]' | tr '_' '.' ))
+SITE_CURRENT=$(_read site_current $(echo "${NAME}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]' | sed 's/[_-]/\./g'))
+SITE_ALIAS=@$(echo $SITE_URI | tr '.' '_')
 # Check if we can find drush alias for last site.
 SITE_LAST=""
 PLATFORM_NAME_LAST=""
@@ -90,8 +91,8 @@ SITE_WEB_SERVER=$(_read site_web_server 'server_master')
 SITE_DB_SERVER=$(_read site_db_server 'server_localhost')
 SITE_ADMIN_PASSWORD=$(_read site_admin_password 'nimda')
 
-QUICK_SITE_URI=$(_read quick_site_uri $(echo "${PLATFORM_NAME}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]'))
-QUICK_SITE_DRUSH_ALIAS=@$(echo ${QUICK_SITE_URI} | sed 's/[\.-]//g')
+QUICK_SITE_URI=$(_read quick_site_uri ${SITE_URI})
+QUICK_SITE_DRUSH_ALIAS=@$(echo ${QUICK_SITE_URI} | tr '.' '_')
 QUICK_DRUPAL_ROOT=$(drush site-alias ${QUICK_SITE_DRUSH_ALIAS} --component=root --strict=0 2> /dev/null)
 QUICK_BUILD_PATH=${QUICK_DRUPAL_ROOT%/$ROOT}
 QUICK_PLATFORM_DRUSH_ALIAS=$(drush site-alias ${QUICK_SITE_DRUSH_ALIAS} --component=platform --strict=0 2> /dev/null)
@@ -109,7 +110,7 @@ ROOT = $ROOT
 AEGIR_HOME = $AEGIR_HOME
 SERVER_URI = $SERVER_URI
 SITE_ALIAS_REDIRECTION = $SITE_ALIAS_REDIRECTION
-BUILD_NUMBER_TO_USE = $BUILD_NUMBER_TO_USE
+BUILD_NUMBER_PLATFORM_TO_USE = $BUILD_NUMBER_PLATFORM_TO_USE
 
 USE_DATABASE = $USE_DATABASE
 
@@ -137,6 +138,7 @@ SITE_LAST = $SITE_LAST
 PLATFORM_NAME_LAST = $PLATFORM_NAME_LAST
 PLATFORM_ROOT_LAST = $PLATFORM_ROOT_LAST
 
+BUILD_NUMBER_QUICK_BACKUP = $BUILD_NUMBER_QUICK_BACKUP
 QUICK_SITE_URI = $QUICK_SITE_URI
 QUICK_SITE_DRUSH_ALIAS = $QUICK_SITE_DRUSH_ALIAS
 QUICK_DRUPAL_ROOT = $QUICK_DRUPAL_ROOT
@@ -144,4 +146,7 @@ QUICK_BUILD_PATH = $QUICK_BUILD_PATH
 QUICK_PLATFORM_DRUSH_ALIAS = $QUICK_PLATFORM_DRUSH_ALIAS
 QUICK_BACKUP_PATH = $QUICK_BACKUP_PATH
 QUICK_JOB_NAME = $QUICK_JOB_NAME
+
+CONFIG_FOLDER = $CONFIG_FOLDER
+CICONFIG_SUFFIX = $CICONFIG_SUFFIX
 EOF
