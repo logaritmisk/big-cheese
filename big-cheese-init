@@ -6,8 +6,12 @@ test -d ~/.big-cheese || mkdir -p ~/.big-cheese
 
 # Configuration files can be in folder.
 CONFIG_FOLDER=""
+CONFIG_FILE_PREFIX="."
 if [ -d ".big-cheese" ]; then
   CONFIG_FOLDER=".big-cheese/"
+
+  # No dot prefix when config files in folder.
+  CONFIG_FILE_PREFIX=""
 fi
 
 # Optional set .ciconfig file suffix with input parameter.
@@ -20,15 +24,15 @@ GIT_CURRENT_BRANCH=$(echo ${GIT_BRANCH} | cut -d"/" -f2)
 # Help function to read .ciconfig file.
 # Use .ciconfig file (with or without specific suffix) in current directory (or subfolder called .big-cheese), if missing, use ~/.big-cheese/.ciconfig, and last use default value.
 _read() {
-  local p=$(cat ${CONFIG_FOLDER}.ciconfig-${CICONFIG_SUFFIX} 2> /dev/null | grep '^\s*'$1'\s=')
+  local p=$(cat ${CONFIG_FOLDER}${CONFIG_FILE_PREFIX}ciconfig-${CICONFIG_SUFFIX} 2> /dev/null | grep '^\s*'$1'\s=')
   if [[ -n ${p#*=} ]]; then
     echo ${p#*=}
   else
-    local b=$(cat ${CONFIG_FOLDER}.ciconfig-${GIT_CURRENT_BRANCH} 2> /dev/null | grep '^\s*'$1'\s=')
+    local b=$(cat ${CONFIG_FOLDER}${CONFIG_FILE_PREFIX}ciconfig-${GIT_CURRENT_BRANCH} 2> /dev/null | grep '^\s*'$1'\s=')
     if [[ -n ${b#*=} ]]; then
       echo ${b#*=}
     else
-      local c=$(cat ${CONFIG_FOLDER}.ciconfig 2> /dev/null | grep '^\s*'$1'\s=')
+      local c=$(cat ${CONFIG_FOLDER}${CONFIG_FILE_PREFIX}ciconfig 2> /dev/null | grep '^\s*'$1'\s=')
       if [[ -n ${c#*=} ]]; then
         echo ${c#*=}
       else
