@@ -36,7 +36,7 @@ _read() {
       if [[ -n ${c#*=} ]]; then
         echo ${c#*=}
       else
-        local h=$(cat ~/.big-cheese/.ciconfig 2> /dev/null | grep '^\s*'$1'\s=')
+        local h=$(cat ~/.big-cheese/ciconfig 2> /dev/null | grep '^\s*'$1'\s=')
         if [[ -n  ${h#*=} ]]; then
           echo ${h#*=}
         else
