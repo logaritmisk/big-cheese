@@ -12,7 +12,7 @@
 # Install
 
 1. Clone repository to server.
-1. Make symbolic links to all scripts. For example like this to get big-cheese-init:
+1. Make symbolic links to all scripts. For example:
     sudo ln -s /path/to/big-cheese/big-cheese-init /usr/local/bin
 1. Use the big-cheese scripts in your Jenkins job to do ci/stage or even deploy to production.
 
