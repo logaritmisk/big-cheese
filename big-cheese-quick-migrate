@@ -1,0 +1,66 @@
+#!/bin/bash
+
+set -e
+set -v
+
+SITE_ALIAS="${1}"
+DESTINATION_PLATFORM_ALIAS="${2}"
+
+echo "===> ${SITE_ALIAS}: START migration."
+
+# Exit if required parameter is missing.
+if [ -z "${SITE_ALIAS}" ] || [ -z "${DESTINATION_PLATFORM_ALIAS}" ]; then
+  echo "Missing required parameter! Site alias and destination platform alias are required."
+  echo "===> ${SITE_ALIAS}: NO migration."
+  exit 1
+fi
+SITE_URI=$(drush site-alias ${SITE_ALIAS} --component=uri --strict=0 2> /dev/null)
+SOURCE_ROOT_PATH=$(drush site-alias ${SITE_ALIAS} --component=root --strict=0 2> /dev/null)
+DESTINATION_ROOT_PATH=$(drush site-alias ${DESTINATION_PLATFORM_ALIAS} --component=root --strict=0 2> /dev/null)
+
+echo "SITE_URI: ${SITE_URI}"
+
+# Exit if source root folder is missing.
+if [ ! -d "${SOURCE_ROOT_PATH}" ]; then
+  echo "Can not find root path for site alias: ${SITE_ALIAS}"
+  echo "===> ${SITE_ALIAS}: NO migration."
+  exit 1
+fi
+
+# Exit if destination root folder is missing.
+if [ ! -d "${DESTINATION_ROOT_PATH}" ]; then
+  echo "Can not find root path for destination platform alias: ${DESTINATION_PLATFORM_ALIAS}"
+  echo "===> ${SITE_ALIAS}: NO migration."
+  exit 1
+fi
+
+if [ ! -d "${QUICK_MIGRATE_BACKUP_ROOT}" ]; then
+  mkdir -p "${QUICK_MIGRATE_BACKUP_ROOT}"
+fi
+QUICK_MIGRATE_BACKUP_PATH="${QUICK_MIGRATE_BACKUP_ROOT}/${SITE_URI}"
+if [ ! -d "${QUICK_MIGRATE_BACKUP_PATH}" ]; then
+  mkdir -p "${QUICK_MIGRATE_BACKUP_PATH}"
+fi
+
+# Turn off site.
+drush "${SITE_ALIAS}" vset maintenance_mode -y 1
+
+# Back up database
+drush "${SITE_ALIAS}" sql-dump > "${QUICK_MIGRATE_BACKUP_PATH}/dump.sql"
+
+# Move site folder.
+mv "${SOURCE_ROOT_PATH}/sites/${SITE_URI}" "${DESTINATION_ROOT_PATH}/sites"
+
+# Change platform in site alias.
+drush provision-save "${SITE_ALIAS}" --platform="${DESTINATION_PLATFORM_ALIAS}"
+
+# Verify site to make site work on new platform.
+drush "${SITE_ALIAS}" provision-verify -v
+
+# Update database if needed.
+drush  "${SITE_ALIAS}" updatedb -y
+
+# Turn site on again.
+drush  "${SITE_ALIAS}" vset maintenance_mode -y 0
+
+echo "===> ${SITE_ALIAS}: END migration. ${SITE_URI} is now on platform ${DESTINATION_PLATFORM_ALIAS}"
