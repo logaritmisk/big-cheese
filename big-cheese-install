@@ -93,5 +93,10 @@ if [ -n "${SITE_CURRENT}" ]; then
   echo "${SITE_ALIAS}" > ~/.big-cheese/"${SITE_CURRENT}"
 fi
 
-# Verify platform.
+# Verify platform
 drush "$PLATFORM_ALIAS" provision-verify -v
+
+# Let Aegir know about the new platform and site.
+if [ "${NOTIFY_AEGIR}" == "yes" ]; then
+  drush @hostmaster hosting-import "${PLATFORM_ALIAS}" -v
+fi

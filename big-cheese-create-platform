@@ -14,3 +14,8 @@ drush provision-save "${PLATFORM_ALIAS}" \
 
 # Verify platform.
 drush "$PLATFORM_ALIAS" provision-verify -v
+
+# Let Aegir know about the new platform.
+if [ "${NOTIFY_AEGIR}" == "yes" ]; then
+  drush @hostmaster hosting-import "${PLATFORM_ALIAS}"
+fi

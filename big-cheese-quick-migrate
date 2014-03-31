@@ -63,4 +63,9 @@ drush  "${SITE_ALIAS}" updatedb -y
 # Turn site on again.
 drush  "${SITE_ALIAS}" vset maintenance_mode -y 0
 
+# Notify Aegir that the site is moved (migrated).
+if [ "${NOTIFY_AEGIR}" == "yes" ]; then
+  drush @hostmaster hosting-import "${SITE_ALIAS}" -v
+fi
+
 echo "===> ${SITE_ALIAS}: END migration. ${SITE_URI} is now on platform ${DESTINATION_PLATFORM_ALIAS}"

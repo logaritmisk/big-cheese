@@ -37,3 +37,9 @@ for site in ${SITES} ; do
    big-cheese-quick-migrate "${site}" "${DESTINATION_PLATFORM_ALIAS}"
   fi
 done
+
+# Notify Aegir about changes on platforms, inclusive moved (migrated) sites.
+if [ "${NOTIFY_AEGIR}" == "yes" ]; then
+  drush @hostmaster hosting-task "${DESTINATION_PLATFORM_ALIAS}" verify --force -v
+  drush @hostmaster hosting-task "${SOURCE_PLATFORM_ALIAS}" verify --force -v
+fi
