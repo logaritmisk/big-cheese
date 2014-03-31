@@ -29,12 +29,11 @@ if [ -n "${SITES_ON_DESTINATION_PLATFORM}" ] && [ "${FORCE_MIGRATE}" != "1" ]; t
   exit 1
 fi
 
-
 # Migrate sites.
 for site in ${SITES} ; do
   if [ -n "${site}" ]; then
    # Migrate site.
-   big-cheese-quick-migrate "${site}" "${DESTINATION_PLATFORM_ALIAS}"
+   big-cheese-quick-migrate "${site}" "${DESTINATION_PLATFORM_ALIAS}" "${BUILD_NUMBER}"
   fi
 done
 

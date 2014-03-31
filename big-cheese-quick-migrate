@@ -5,6 +5,7 @@ set -v
 
 SITE_ALIAS="${1}"
 DESTINATION_PLATFORM_ALIAS="${2}"
+BUILD_NUMBER_QUICK_MIGRATE_BACKUP="${3}"
 
 echo "===> ${SITE_ALIAS}: START migration."
 
@@ -34,6 +35,16 @@ if [ ! -d "${DESTINATION_ROOT_PATH}" ]; then
   exit 1
 fi
 
+# Exit if job name or build number is missing.
+if [ -z "${QUICK_MIGRATE_JOB_NAME}" ] || [ -z "${BUILD_NUMBER_QUICK_MIGRATE_BACKUP}" ]; then
+  echo "Can not find quick migrate job name or quick migrate build number"
+  echo "QUICK_MIGRATE_JOB_NAME: ${QUICK_MIGRATE_JOB_NAME}"
+  echo "BUILD_NUMBER_QUICK_MIGRATE_BACKUP: ${BUILD_NUMBER_QUICK_MIGRATE_BACKUP}"
+  echo "===> ${SITE_ALIAS}: NO migration."
+  exit 1
+fi
+
+QUICK_MIGRATE_BACKUP_ROOT="${AEGIR_HOME}/backups/${QUICK_MIGRATE_JOB_NAME}-${BUILD_NUMBER_QUICK_MIGRATE_BACKUP}"
 if [ ! -d "${QUICK_MIGRATE_BACKUP_ROOT}" ]; then
   mkdir -p "${QUICK_MIGRATE_BACKUP_ROOT}"
 fi
