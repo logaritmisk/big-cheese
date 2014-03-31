@@ -84,7 +84,7 @@ PLATFORM_ALIAS="@platform_${PLATFORM_NAME}"
 
 SITE_URI=$(_read site_uri $(echo "${NAME}${BUILD_NUMBER_PLATFORM_TO_USE}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]' | tr '_' '.' ))
 SITE_CURRENT=$(_read site_current $(echo "${NAME}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]' | sed 's/[_-]/\./g'))
-SITE_ALIAS=@$(echo $SITE_URI | tr '.' '_')
+SITE_ALIAS=@$(echo $SITE_URI)
 # Check if we can find drush alias for last site.
 SITE_LAST=""
 PLATFORM_NAME_LAST=""
@@ -100,7 +100,7 @@ SITE_DB_SERVER=$(_read site_db_server 'server_localhost')
 SITE_ADMIN_PASSWORD=$(_read site_admin_password 'nimda')
 
 QUICK_SITE_URI=$(_read quick_site_uri ${SITE_URI})
-QUICK_SITE_DRUSH_ALIAS=@$(echo ${QUICK_SITE_URI} | tr '.' '_')
+QUICK_SITE_DRUSH_ALIAS=@$(echo ${QUICK_SITE_URI})
 QUICK_DRUPAL_ROOT=$(drush site-alias ${QUICK_SITE_DRUSH_ALIAS} --component=root --strict=0 2> /dev/null)
 QUICK_BUILD_PATH=${QUICK_DRUPAL_ROOT%/$ROOT}
 QUICK_PLATFORM_DRUSH_ALIAS=$(drush site-alias ${QUICK_SITE_DRUSH_ALIAS} --component=platform --strict=0 2> /dev/null)
