@@ -62,6 +62,12 @@ drush "${SITE_ALIAS}" sql-dump > "${QUICK_MIGRATE_BACKUP_PATH}/dump.sql"
 # Move site folder.
 mv "${SOURCE_ROOT_PATH}/sites/${SITE_URI}" "${DESTINATION_ROOT_PATH}/sites"
 
+if [ -z "${SERVERS}" ]; then
+  for SERVER in $SERVERS; do
+    ssh aegir@$SERVER "mv ${SOURCE_ROOT_PATH}/sites/${SITE_URI}" "${DESTINATION_ROOT_PATH}/sites"
+  done
+fi
+
 # Change platform in site alias.
 drush provision-save "${SITE_ALIAS}" --platform="${DESTINATION_PLATFORM_ALIAS}"
 

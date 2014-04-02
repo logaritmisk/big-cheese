@@ -73,6 +73,7 @@ ORIGIN_DIR=$(_read origin_dir)
 SHIELD_USER=$(_read shield_user)
 SHIELD_PASS=$(_read shield_pass)
 SHIELD_WHITELIST=$(_read shield_whitelist)
+SERVERS=$(_read servers)
 
 PLATFORM_NAME=$(echo "${NAME}_${BUILD_NUMBER_PLATFORM_TO_USE}" | tr '[:upper:]' '[:lower:]' | sed 's/[\.-]/_/g')
 PLATFORM_BASE_PATH=$(_read platform_base_path ${AEGIR_HOME}/platforms)
