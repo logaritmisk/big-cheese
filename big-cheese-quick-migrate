@@ -62,7 +62,7 @@ drush "${SITE_ALIAS}" sql-dump > "${QUICK_MIGRATE_BACKUP_PATH}/dump.sql"
 # Move site folder.
 mv "${SOURCE_ROOT_PATH}/sites/${SITE_URI}" "${DESTINATION_ROOT_PATH}/sites"
 
-if [ -z "${SERVERS}" ]; then
+if [ $SERVERS ]; then
   for SERVER in $SERVERS; do
     ssh aegir@$SERVER "mv ${SOURCE_ROOT_PATH}/sites/${SITE_URI}" "${DESTINATION_ROOT_PATH}/sites"
   done
