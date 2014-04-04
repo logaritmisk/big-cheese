@@ -3,12 +3,26 @@
 set -e
 set -v
 
+# Save symbolic links (sub catalog url magic) if existing.
+SYMLINKS=$(find "${QUICK_DRUPAL_ROOT}" -type l)
+
+echo "Found symbolic links in ${QUICK_DRUPAL_ROOT}:"
+echo "${SYMLINKS}"
+
 # Quick deploy of new code (core + profile). But first backup.
 mv ${QUICK_BUILD_PATH} ${QUICK_BACKUP_PATH}
 mkdir -p "${QUICK_BUILD_PATH}/${ROOT}"
 rsync -a "${WORKSPACE}/${ROOT}/" "${QUICK_BUILD_PATH}/${ROOT}"
 rm -rf "${QUICK_BUILD_PATH}/${ROOT}/sites"
 mv "${QUICK_BACKUP_PATH}/${ROOT}/sites" "${QUICK_BUILD_PATH}/${ROOT}"
+
+# Restore symbolic links
+for lnk in ${SYMLINKS} ; do
+  if [ -n "${lnk}" ]; then
+  sym=$(basename "${lnk}")
+  ln -s -T "${QUICK_BUILD_PATH}/${ROOT}" "${QUICK_BUILD_PATH}/${ROOT}/${sym}"
+  fi
+done
 
 if $UPDATEDB ; then
   drush  "${QUICK_SITE_DRUSH_ALIAS}" vset maintenance_mode -y 1 
