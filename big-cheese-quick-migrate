@@ -66,6 +66,8 @@ if [ -n "$SERVERS" ]; then
   for SERVER in $SERVERS; do
     ssh aegir@$SERVER "mv ${SOURCE_ROOT_PATH}/sites/${SITE_URI}" "${DESTINATION_ROOT_PATH}/sites"
   done
+  # It's safe to remove the files directory from the master server if we have remote servers.
+  rm -rf "${DESTINATION_ROOT_PATH}/sites/${SITE_URI}/files/*"
 fi
 
 # Change platform in site alias.
