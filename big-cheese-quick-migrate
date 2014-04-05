@@ -65,8 +65,12 @@ mv "${SOURCE_ROOT_PATH}/sites/${SITE_URI}" "${DESTINATION_ROOT_PATH}/sites"
 if [ -n "$SERVERS" ]; then
   for SERVER in $SERVERS; do
     ssh aegir@$SERVER "mv ${SOURCE_ROOT_PATH}/sites/${SITE_URI}" "${DESTINATION_ROOT_PATH}/sites"
+    # Move files directory to avoid problems when provisioning.
+    ssh aegir@$SERVER "mkdir -p /var/aegir/big-cheese"
+    ssh aegir@$SERVER "mv ${DESTINATION_ROOT_PATH}/sites/${SITE_URI}/files /var/aegir/big-cheese/${SITE_URI}"
   done
   # It's safe to remove the files directory from the master server if we have remote servers.
+  # This makes the provisioning process a bit more safe.
   rm -rf "${DESTINATION_ROOT_PATH}/sites/${SITE_URI}/files/*"
 fi
 
@@ -75,6 +79,14 @@ drush provision-save "${SITE_ALIAS}" --platform="${DESTINATION_PLATFORM_ALIAS}"
 
 # Verify site to make site work on new platform.
 drush "${SITE_ALIAS}" provision-verify -v
+
+# Get our symlink back.
+if [ -n "$SERVERS" ]; then
+    for SERVER in $SERVERS; do
+        ssh aegir@$SERVER "rm -rf ${DESTINATION_ROOT_PATH}/sites/${SITE_URI}/files"
+        ssh aegir@$SERVER "mv /var/aegir/big-cheese/${SITE_URI} ${DESTINATION_ROOT_PATH}/sites/${SITE_URI}/files"
+    done
+fi
 
 # Update database if needed.
 drush  "${SITE_ALIAS}" updatedb -y
