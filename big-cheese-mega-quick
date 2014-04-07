@@ -42,23 +42,15 @@ for lnk in ${SYMLINKS} ; do
   fi
 done
 
-# Backup databases.
-for site in ${SITES} ; do
-  if [ -n "${site}" ]; then
-    if $UPDATEDB ; then
-      drush  "${site}" vset maintenance_mode -y 1
-    fi
-    BACKUP_FILE_PREFIX=$(echo "${site}" | sed 's/\@//g')
-    drush  "${site}" sql-dump > "${MEGA_QUICK_BACKUP_PATH}/${BACKUP_FILE_PREFIX}-dump.sql"
-  fi
-done
-
-# Verify platform to deploy new code (on remote servers).
+# Verify platform to deploy new code (to remote servers).
 drush  "${MEGA_QUICK_PLATFORM_ALIAS}" provision-verify -v
 
-# Implement code to databases.
+# Backup databases and run update database if requested.
 for site in ${SITES} ; do
   if [ -n "${site}" ]; then
+    drush  "${site}" vset maintenance_mode -y 1
+    BACKUP_FILE_PREFIX=$(echo "${site}" | sed 's/\@//g')
+    drush  "${site}" sql-dump > "${MEGA_QUICK_BACKUP_PATH}/${BACKUP_FILE_PREFIX}-dump.sql"
     if $UPDATEDB ; then
       drush  "${site}" updatedb -y
     fi
