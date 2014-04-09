@@ -113,6 +113,10 @@ MEGA_QUICK_JOB_NAME=$(_read mega_quick_job_name ${JOB_NAME})
 # Make sure there is a jenkins folder.
 mkdir -p jenkins
 
+# Tell other systems we are running.
+mkdir -p "/tmp/big-cheese-lock"
+touch "/tmp/big-cheese-lock/${JOB_NAME}-${BUILD_NUMBER}-$(date +'%Y%m%dT%s')"
+
 # Save variables as properties.
 tee jenkins/properties <<EOF
 NAME = $NAME
