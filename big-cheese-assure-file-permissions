@@ -3,6 +3,11 @@
 set -e
 set -v
 
+# Optional set site alias without big-cheese-init.
+if [ -n $1 ]; then
+  SITE_ALIAS=$1
+fi
+
 SITE_PATH=$(drush site-alias ${SITE_ALIAS} --component=site_path --strict=0 2> /dev/null)
 
 # Files folder
