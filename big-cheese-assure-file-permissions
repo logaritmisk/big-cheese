@@ -10,6 +10,7 @@ fi
 
 SITE_PATH=$(drush site-alias ${SITE_ALIAS} --component=site_path --strict=0 2> /dev/null)
 
+echo "SITE_ALIAS: ${SITE_ALIAS}"
 echo "SITE_PATH: ${SITE_PATH}"
 
 # Files folder
