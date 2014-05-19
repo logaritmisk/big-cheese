@@ -31,7 +31,9 @@ SYMLINKS=$(find "${MEGA_QUICK_DRUPAL_ROOT}" -type l)
 echo "Symbolic links found in folder ${MEGA_QUICK_DRUPAL_ROOT}:"
 echo "${SYMLINKS}"
 
-# Quick deploy of new code (core + profile). But first backup.
+# Quick deploy of new code (core + profile).
+echo ""
+echo "Deploy of new code."
 mv ${MEGA_QUICK_BUILD_PATH} ${MEGA_QUICK_BACKUP_PATH}
 mkdir -p "${MEGA_QUICK_BUILD_PATH}/${ROOT}"
 rsync -a "${WORKSPACE}/${ROOT}/" "${MEGA_QUICK_BUILD_PATH}/${ROOT}"
@@ -52,13 +54,19 @@ drush  "${MEGA_QUICK_PLATFORM_ALIAS}" provision-verify -v
 # Backup databases and run update database if requested.
 for site in ${SITES} ; do
   if [ -n "${site}" ]; then
+    echo "===> CURRENT site: ${site} START: $(date +'%Y-%m-%d %T')"
     drush  "${site}" vset maintenance_mode -y 1
+    echo "BACKUP, start: $(date +'%Y-%m-%d %T')"
     BACKUP_FILE_PREFIX=$(echo "${site}" | sed 's/\@//g')
     drush  "${site}" sql-dump > "${MEGA_QUICK_BACKUP_PATH}/${BACKUP_FILE_PREFIX}-dump.sql"
+    echo "BACKUP, finnish: $(date +'%Y-%m-%d %T')"
     if $UPDATEDB ; then
+      echo "UPDATEDB, start: $(date +'%Y-%m-%d %T')"
       drush  "${site}" updatedb -y
+      echo "UPDATEDB, finnish: $(date +'%Y-%m-%d %T')"
     fi
     drush  "${site}" cc all
     drush  "${site}" vset maintenance_mode -y 0
+    echo "===> CURRENT site: ${site} FINNISH: $(date +'%Y-%m-%d %T')"
   fi
 done
