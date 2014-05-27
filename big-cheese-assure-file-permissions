@@ -4,14 +4,22 @@ set -e
 set -v
 
 # Optional set site alias without big-cheese-init.
-if [ -n $1 ]; then
+if [ -n "$1" ]; then
   SITE_ALIAS=$1
+fi
+
+# Abort if no site alias is set.
+if [ -z "${SITE_ALIAS}" ]; then
+  echo "SITE_ALIAS is empty! Abort!"
+  exit 1
 fi
 
 SITE_PATH=$(drush site-alias ${SITE_ALIAS} --component=site_path --strict=0 2> /dev/null)
 
 echo "SITE_ALIAS: ${SITE_ALIAS}"
 echo "SITE_PATH: ${SITE_PATH}"
+
+if 
 
 # Files folder
 chown -R aegir:www-data "${SITE_PATH}/files"
