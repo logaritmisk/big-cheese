@@ -103,9 +103,9 @@ SITE_ADMIN_PASSWORD=$(_read site_admin_password 'nimda')
 
 QUICK_SITE_URI=$(_read quick_site_uri ${SITE_URI})
 QUICK_SITE_DRUSH_ALIAS=@$(echo ${QUICK_SITE_URI})
-QUICK_DRUPAL_ROOT=$(drush site-alias ${QUICK_SITE_DRUSH_ALIAS} --component=root --strict=0 2> /dev/null)
+QUICK_DRUPAL_ROOT=$(drush site-alias ${QUICK_SITE_DRUSH_ALIAS} ---pipe --strict=0 2> /dev/null | grep "'root'" | cut -d"'" -f4)
 QUICK_BUILD_PATH=${QUICK_DRUPAL_ROOT%/$ROOT}
-QUICK_PLATFORM_DRUSH_ALIAS=$(drush site-alias ${QUICK_SITE_DRUSH_ALIAS} --component=platform --strict=0 2> /dev/null)
+QUICK_PLATFORM_DRUSH_ALIAS=$(drush site-alias ${QUICK_SITE_DRUSH_ALIAS} --pipe --strict=0 2> /dev/null | grep "'platform'" | cut -d"'" -f4)
 QUICK_JOB_NAME=$(_read quick_job_name ${JOB_NAME})
 QUICK_BACKUP_PATH="${AEGIR_HOME}/backups/${QUICK_JOB_NAME}-${BUILD_NUMBER_QUICK_BACKUP}-${QUICK_SITE_URI}"
 
