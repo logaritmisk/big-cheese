@@ -1,0 +1,17 @@
+#!/usr/bin/env drush
+
+$parameter = drush_get_option('search-parameter');
+$term = drush_get_option('search-term');
+
+drush_sitealias_load_all();
+
+$results = array();
+foreach (drush_get_context('site-aliases') as $alias => $info) {
+
+  if (empty($info[$parameter]) || $info[$parameter] != $term) {
+    continue;
+  }
+
+  print "$alias\n";
+}
+

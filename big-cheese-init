@@ -4,33 +4,69 @@
 # Create big-cheese home.
 test -d ~/.big-cheese || mkdir -p ~/.big-cheese
 
+# Configuration files can be in folder.
+CONFIG_FOLDER=""
+CONFIG_FILE_PREFIX="."
+if [ -d ".big-cheese" ]; then
+  CONFIG_FOLDER=".big-cheese/"
 
-# Bail if there is no .ciconfig file.
-test -f .ciconfig || exit 1
+  # No dot prefix when config files in folder.
+  CONFIG_FILE_PREFIX=""
+fi
 
+# Optional set .ciconfig file suffix with input parameter.
+CICONFIG_SUFFIX=""
+CICONFIG_SUFFIX=$1
 
-# Help function to read .ciconfig file. Use .ciconfig file in current directory, if missing, use ~/.big-cheese/.ciconfig, and last use default value.
+# Get the name of current git branch. GIT_BRANCH is provided by Jenkins.
+GIT_CURRENT_BRANCH=$(echo ${GIT_BRANCH} | cut -d"/" -f2)
+
+# Help function to read .ciconfig file.
+# Use .ciconfig file (with or without specific suffix) in current directory (or subfolder called .big-cheese), if missing, use ~/.big-cheese/.ciconfig, and last use default value.
 _read() {
-  local c=$(cat .ciconfig 2> /dev/null | grep '^\s*'$1'\s=')
-  if [[ -n ${c#*=} ]]; then
-    echo ${c#*=}
+  local p=$(cat ${CONFIG_FOLDER}${CONFIG_FILE_PREFIX}ciconfig-${CICONFIG_SUFFIX} 2> /dev/null | grep '^\s*'$1'\s=')
+  if [[ -n ${p#*=} ]]; then
+    echo ${p#*=}
   else
-    local h=$(cat ~/.big-cheese/.ciconfig 2> /dev/null | grep '^\s*'$1'\s=')
-    if [[ -n  ${h#*=} ]]; then
-      echo ${h#*=}
+    local b=$(cat ${CONFIG_FOLDER}${CONFIG_FILE_PREFIX}ciconfig-${GIT_CURRENT_BRANCH} 2> /dev/null | grep '^\s*'$1'\s=')
+    if [[ -n ${b#*=} ]]; then
+      echo ${b#*=}
     else
-      echo ${2:-''}
+      local c=$(cat ${CONFIG_FOLDER}${CONFIG_FILE_PREFIX}ciconfig 2> /dev/null | grep '^\s*'$1'\s=')
+      if [[ -n ${c#*=} ]]; then
+        echo ${c#*=}
+      else
+        local h=$(cat ~/.big-cheese/ciconfig 2> /dev/null | grep '^\s*'$1'\s=')
+        if [[ -n  ${h#*=} ]]; then
+          echo ${h#*=}
+        else
+          echo ${2:-''}
+        fi
+      fi
     fi
   fi
 }
 
-
 # Variables.
-NAME=$(_read name ${JOB_NAME#*-})
-PROFILE=$(_read profile ${JOB_NAME#*-})
+NAME=$(_read name ${JOB_NAME})
+PROFILE=$(_read profile ${JOB_NAME%%-*})
 ROOT=$(_read root 'web')
 AEGIR_HOME=$(_read aegir_home '/var/aegir')
 SERVER_URI=$(_read server_uri 'ci.server.domain')
+SITE_ALIAS_REDIRECTION=$(_read site_alias_redirection 'true')
+NOTIFY_AEGIR=$(_read notify_aegir 'no')
+BUILD_NUMBER_PLATFORM_TO_USE=${BUILD_NUMBER}
+BUILD_NUMBER_QUICK_BACKUP=${BUILD_NUMBER}
+BUILD_NUMBER_QUICK_MIGRATE_BACKUP=${BUILD_NUMBER}
+if [ -n "${BUILD_NUMBER_PLATFORM}" ]; then
+  BUILD_NUMBER_PLATFORM_TO_USE=${BUILD_NUMBER_PLATFORM}
+fi
+if [ -n "${BUILD_NUMBER_QUICK_DEPLOY}" ]; then
+  BUILD_NUMBER_QUICK_BACKUP=${BUILD_NUMBER_QUICK_DEPLOY}
+fi
+if [ -n "${NOTIFY_AEGIR_HOSTMASTER}" ]; then
+  NOTIFY_AEGIR=${NOTIFY_AEGIR_HOSTMASTER}
+fi
 
 USE_DATABASE=$(_read database)
 
@@ -39,28 +75,61 @@ ORIGIN_DIR=$(_read origin_dir)
 
 SHIELD_USER=$(_read shield_user)
 SHIELD_PASS=$(_read shield_pass)
+SHIELD_WHITELIST=$(_read shield_whitelist)
+SERVERS=$(_read servers)
 
-PLATFORM_NAME=${NAME}_build${BUILD_NUMBER}
-PLATFORM_ROOT=${AEGIR_HOME}/platforms/${PLATFORM_NAME}
+PLATFORM_NAME=$(echo "${NAME}_${BUILD_NUMBER_PLATFORM_TO_USE}" | tr '[:upper:]' '[:lower:]' | sed 's/[\.-]/_/g')
+PLATFORM_BASE_PATH=$(_read platform_base_path ${AEGIR_HOME}/platforms)
+PLATFORM_ROOT=${PLATFORM_BASE_PATH}/${PLATFORM_NAME}
 PLATFORM_WEB=${PLATFORM_ROOT}/${ROOT}
-PLATFORM_ALIAS=@platform_$(echo $PLATFORM_NAME | sed 's/[\.-]//g')
+PLATFORM_ALIAS="@platform_${PLATFORM_NAME}"
 
-SITE_URI=$(echo "${PLATFORM_NAME}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]')
-SITE_CURRENT=$(echo "${NAME}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]')
-SITE_ALIAS=@$(echo $SITE_URI | sed 's/[\.-]//g')
+SITE_URI=$(_read site_uri $(echo "${NAME}${BUILD_NUMBER_PLATFORM_TO_USE}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]' | tr '_' '.' ))
+SITE_CURRENT=$(_read site_current $(echo "${NAME}.${SERVER_URI}" | tr '[:upper:]' '[:lower:]' | sed 's/[_-]/\./g'))
+SITE_ALIAS=@$(echo $SITE_URI)
+# Check if we can find drush alias for last site.
+SITE_LAST=""
+PLATFORM_NAME_LAST=""
+PLATFORM_ROOT_LAST=""
+if [ -f ~/.big-cheese/"${SITE_CURRENT}" ]; then
+  SITE_LAST=$(cat ~/.big-cheese/"${SITE_CURRENT}")
+  SERVER_URI_STRIPPED=$(echo $SERVER_URI | sed 's/[\.-]//g')
+  PLATFORM_NAME_LAST=$(echo "${SITE_LAST}" | sed "s/${SERVER_URI_STRIPPED}//g" | sed 's/\@//g')
+  PLATFORM_ROOT_LAST=${AEGIR_HOME}/platforms/${PLATFORM_NAME_LAST}
+fi
+SITE_WEB_SERVER="@$(_read site_web_server 'server_master')"
+SITE_DB_SERVER="@$(_read site_db_server 'server_localhost')"
+SITE_ADMIN_PASSWORD=$(_read site_admin_password 'nimda')
 
+QUICK_SITE_URI=$(_read quick_site_uri ${SITE_URI})
+QUICK_SITE_DRUSH_ALIAS=@$(echo ${QUICK_SITE_URI})
+QUICK_DRUPAL_ROOT=$(drush site-alias ${QUICK_SITE_DRUSH_ALIAS} ---pipe --strict=0 2> /dev/null | grep "'root'" | cut -d"'" -f4)
+QUICK_BUILD_PATH=${QUICK_DRUPAL_ROOT%/$ROOT}
+QUICK_PLATFORM_DRUSH_ALIAS=$(drush site-alias ${QUICK_SITE_DRUSH_ALIAS} --pipe --strict=0 2> /dev/null | grep "'platform'" | cut -d"'" -f4)
+QUICK_JOB_NAME=$(_read quick_job_name ${JOB_NAME})
+QUICK_BACKUP_PATH="${AEGIR_HOME}/backups/${QUICK_JOB_NAME}-${BUILD_NUMBER_QUICK_BACKUP}-${QUICK_SITE_URI}"
+
+QUICK_MIGRATE_JOB_NAME=$(_read quick_migrate_job_name ${JOB_NAME})
+
+MEGA_QUICK_JOB_NAME=$(_read mega_quick_job_name ${JOB_NAME})
 
 # Make sure there is a jenkins folder.
 mkdir -p jenkins
 
+# Tell other systems we are running.
+mkdir -p "/tmp/big-cheese-lock"
+touch "/tmp/big-cheese-lock/${JOB_NAME}-${BUILD_NUMBER}-$(date +'%Y%m%dT%s')"
 
 # Save variables as properties.
 tee jenkins/properties <<EOF
 NAME = $NAME
 PROFILE = $PROFILE
-ROOT=$ROOT
-AEGIR_HOME=$AEGIR_HOME
-SERVER_URI=$SERVER_URI
+ROOT = $ROOT
+AEGIR_HOME = $AEGIR_HOME
+SERVER_URI = $SERVER_URI
+SITE_ALIAS_REDIRECTION = $SITE_ALIAS_REDIRECTION
+NOTIFY_AEGIR = $NOTIFY_AEGIR
+BUILD_NUMBER_PLATFORM_TO_USE = $BUILD_NUMBER_PLATFORM_TO_USE
 
 USE_DATABASE = $USE_DATABASE
 
@@ -69,8 +138,10 @@ ORIGIN_DIR = $ORIGIN_DIR
 
 SHIELD_USER = $SHIELD_USER
 SHIELD_PASS = $SHIELD_PASS
+SHIELD_WHITELIST = $SHIELD_WHITELIST
 
 PLATFORM_NAME = $PLATFORM_NAME
+PLATFORM_BASE_PATH = $PLATFORM_BASE_PATH
 PLATFORM_ROOT = $PLATFORM_ROOT
 PLATFORM_WEB = $PLATFORM_WEB
 PLATFORM_ALIAS = $PLATFORM_ALIAS
@@ -78,4 +149,28 @@ PLATFORM_ALIAS = $PLATFORM_ALIAS
 SITE_URI = $SITE_URI
 SITE_CURRENT = $SITE_CURRENT
 SITE_ALIAS = $SITE_ALIAS
+SITE_WEB_SERVER = $SITE_WEB_SERVER
+SITE_DB_SERVER = $SITE_DB_SERVER
+SITE_ADMIN_PASSWORD = $SITE_ADMIN_PASSWORD
+
+SITE_LAST = $SITE_LAST
+PLATFORM_NAME_LAST = $PLATFORM_NAME_LAST
+PLATFORM_ROOT_LAST = $PLATFORM_ROOT_LAST
+
+BUILD_NUMBER_QUICK_BACKUP = $BUILD_NUMBER_QUICK_BACKUP
+QUICK_SITE_URI = $QUICK_SITE_URI
+QUICK_SITE_DRUSH_ALIAS = $QUICK_SITE_DRUSH_ALIAS
+QUICK_DRUPAL_ROOT = $QUICK_DRUPAL_ROOT
+QUICK_BUILD_PATH = $QUICK_BUILD_PATH
+QUICK_PLATFORM_DRUSH_ALIAS = $QUICK_PLATFORM_DRUSH_ALIAS
+QUICK_BACKUP_PATH = $QUICK_BACKUP_PATH
+QUICK_JOB_NAME = $QUICK_JOB_NAME
+
+QUICK_MIGRATE_JOB_NAME = $QUICK_MIGRATE_JOB_NAME
+MEGA_QUICK_JOB_NAME = $MEGA_QUICK_JOB_NAME
+
+CONFIG_FOLDER = $CONFIG_FOLDER
+CICONFIG_SUFFIX = $CICONFIG_SUFFIX
+SERVERS = $SERVERS
+
 EOF

@@ -1,0 +1,72 @@
+#!/bin/bash
+
+set -e
+set -v
+
+MEGA_QUICK_PLATFORM_ALIAS="${1}"
+
+echo "SOURCE_PLATFORM_ALIAS: ${MEGA_QUICK_PLATFORM_ALIAS}"
+
+# Find all site aliases on source platform.
+SITES=$(big-cheese-find-site  --search-parameter="platform" --search-term="${MEGA_QUICK_PLATFORM_ALIAS}")
+echo "Sites found on platform ${MEGA_QUICK_PLATFORM_ALIAS}:"
+echo "${SITES}"
+
+if [ -z "${SITES}" ]; then
+  echo "No sites found on source platform: ${MEGA_QUICK_PLATFORM_ALIAS}. EXIT!"
+  exit 1
+fi
+
+MEGA_QUICK_DRUPAL_ROOT=$(drush site-alias ${MEGA_QUICK_PLATFORM_ALIAS} --component=root --strict=0 2> /dev/null)
+MEGA_QUICK_BUILD_PATH=${MEGA_QUICK_DRUPAL_ROOT%/$ROOT}
+MEGA_QUICK_BACKUP_PATH="${AEGIR_HOME}/backups/${MEGA_QUICK_JOB_NAME}-${BUILD_NUMBER_QUICK_BACKUP}"
+
+echo "MEGA_QUICK_DRUPAL_ROOT: ${MEGA_QUICK_DRUPAL_ROOT}"
+echo "MEGA_QUICK_BUILD_PATH: ${MEGA_QUICK_BUILD_PATH}"
+echo "MEGA_QUICK_BACKUP_PATH: ${MEGA_QUICK_BACKUP_PATH}"
+
+# Save symbolic links (sub catalog url magic) if existing.
+SYMLINKS=$(find "${MEGA_QUICK_DRUPAL_ROOT}" -type l)
+
+echo "Symbolic links found in folder ${MEGA_QUICK_DRUPAL_ROOT}:"
+echo "${SYMLINKS}"
+
+# Quick deploy of new code (core + profile).
+echo ""
+echo "Deploy of new code."
+mv ${MEGA_QUICK_BUILD_PATH} ${MEGA_QUICK_BACKUP_PATH}
+mkdir -p "${MEGA_QUICK_BUILD_PATH}/${ROOT}"
+rsync -a "${WORKSPACE}/${ROOT}/" "${MEGA_QUICK_BUILD_PATH}/${ROOT}"
+rm -rf "${MEGA_QUICK_BUILD_PATH}/${ROOT}/sites"
+mv "${MEGA_QUICK_BACKUP_PATH}/${ROOT}/sites" "${MEGA_QUICK_BUILD_PATH}/${ROOT}"
+
+# Restore symbolic links
+for lnk in ${SYMLINKS} ; do
+  if [ -n "${lnk}" ]; then
+  sym=$(basename "${lnk}")
+  ln -s -T "${MEGA_QUICK_BUILD_PATH}/${ROOT}" "${MEGA_QUICK_BUILD_PATH}/${ROOT}/${sym}"
+  fi
+done
+
+# Verify platform to deploy new code (to remote servers).
+drush  "${MEGA_QUICK_PLATFORM_ALIAS}" provision-verify -v
+
+# Backup databases and run update database if requested.
+for site in ${SITES} ; do
+  if [ -n "${site}" ]; then
+    echo "===> CURRENT site: ${site} START: $(date +'%Y-%m-%d %T')"
+    drush  "${site}" vset maintenance_mode -y 1
+    echo "BACKUP, start: $(date +'%Y-%m-%d %T')"
+    BACKUP_FILE_PREFIX=$(echo "${site}" | sed 's/\@//g')
+    drush  "${site}" sql-dump > "${MEGA_QUICK_BACKUP_PATH}/${BACKUP_FILE_PREFIX}-dump.sql"
+    echo "BACKUP, finnish: $(date +'%Y-%m-%d %T')"
+    if $UPDATEDB ; then
+      echo "UPDATEDB, start: $(date +'%Y-%m-%d %T')"
+      drush  "${site}" updatedb -y
+      echo "UPDATEDB, finnish: $(date +'%Y-%m-%d %T')"
+    fi
+    drush  "${site}" cc all
+    drush  "${site}" vset maintenance_mode -y 0
+    echo "===> CURRENT site: ${site} FINNISH: $(date +'%Y-%m-%d %T')"
+  fi
+done

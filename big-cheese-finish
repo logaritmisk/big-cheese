@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# Remove lock file.
+rm -f /tmp/big-cheese-lock/${JOB_NAME}-${BUILD_NUMBER}-*

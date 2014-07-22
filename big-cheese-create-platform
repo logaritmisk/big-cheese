@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -e
+set -v
+
+# Copy platform to platform root.
+cp -R $WORKSPACE $PLATFORM_ROOT
+
+# Save platform with provision.
+drush provision-save "${PLATFORM_ALIAS}" \
+  --context_type=platform \
+  --web_server="${SITE_WEB_SERVER}" \
+  --root="${PLATFORM_WEB}"
+
+# Verify platform.
+drush "$PLATFORM_ALIAS" provision-verify -v
+
+# Let Aegir know about the new platform.
+if [ "${NOTIFY_AEGIR}" == "yes" ]; then
+  drush @hostmaster hosting-import "${PLATFORM_ALIAS}"
+fi

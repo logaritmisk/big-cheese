@@ -9,12 +9,13 @@ cp -R $WORKSPACE $PLATFORM_ROOT
 # Save platform with provision.
 drush provision-save "${PLATFORM_ALIAS}" \
   --context_type=platform \
+  --web_server="${SITE_WEB_SERVER}" \
   --root="${PLATFORM_WEB}"
 
 # Save site with provision.
 drush provision-save "${SITE_ALIAS}" \
   --context_type=site \
-  --db_server="server_localhost" \
+  --db_server="${SITE_DB_SERVER}" \
   --uri="${SITE_URI}" \
   --platform="${PLATFORM_ALIAS}" \
   --profile="${PROFILE}"
@@ -51,6 +52,10 @@ if [ -n "${SHIELD_USER}" ] && [ -n "${SHIELD_PASS}" ]; then
   drush "$SITE_ALIAS" vset shield_user "${SHIELD_USER}" -y
   drush "$SITE_ALIAS" vset shield_pass "${SHIELD_PASS}" -y
   drush "$SITE_ALIAS" vset shield_print "" -y
+  if [ -n "${SHIELD_WHITELIST}" ]; then
+    SHIELD_WHITELIST_ARRAY=(${SHIELD_WHITELIST})
+    drush "$SITE_ALIAS" vset shield_ignored_addresses "$(IFS=$'\n' ; echo "${SHIELD_WHITELIST_ARRAY[*]}")"
+  fi
 
   drush "$SITE_ALIAS" en shield -y
 fi
@@ -59,30 +64,39 @@ fi
 ADMIN_ACCOUNT=$(drush "$SITE_ALIAS" uinf 1 | awk '/User name/{print $4}')
 
 # Change admin password.
-drush "$SITE_ALIAS" upwd "${ADMIN_ACCOUNT:-admin}" --password=nimda
+drush "$SITE_ALIAS" upwd "${ADMIN_ACCOUNT:-admin}" --password="${SITE_ADMIN_PASSWORD}"
 
-# Check if we can find a old current.
-if [ -f ~/.big-cheese/"${SITE_CURRENT}" ]; then
-  OLD_CURRENT=$(cat ~/.big-cheese/"${SITE_CURRENT}")
+if [ -n "${SITE_CURRENT}" ]; then
+  # Remove old current site alias.
+  if [ -n "${SITE_LAST}" ]; then
+
+    # Remove old 'current' alias to site.
+    drush "${SITE_LAST}" provision-save \
+      --aliases=","
+
+    # Verify to remove alias from vhost.
+    drush "${SITE_LAST}" provision-verify
+  fi
 
   # Add 'current' alias to site.
-  drush "${OLD_CURRENT}" provision-save \
-    --aliases=","
+  REDIRECTION_STATEMENT="--redirection=1"
+  if [ "${SITE_ALIAS_REDIRECTION}" == "false" ]; then
+    REDIRECTION_STATEMENT="--redirection=0"
+  fi
+  drush "${SITE_ALIAS}" provision-save \
+    --aliases="${SITE_CURRENT}" \
+    ${REDIRECTION_STATEMENT}
 
-  # Verify to 'remove' alias from vhost.
-  drush "${OLD_CURRENT}" provision-verify
+  drush "${SITE_ALIAS}" provision-verify
+
+  # Save alias to current.
+  echo "${SITE_ALIAS}" > ~/.big-cheese/"${SITE_CURRENT}"
 fi
 
-
-# Add 'current' alias to site.
- drush "${SITE_ALIAS}" provision-save \
-   --aliases="${SITE_CURRENT}" \
-   --redirection=true
-
-drush "${SITE_ALIAS}" provision-verify
-
-# Save alias to current.
-echo "${SITE_ALIAS}" > ~/.big-cheese/"${SITE_CURRENT}"
-
-# Verify platform.
+# Verify platform
 drush "$PLATFORM_ALIAS" provision-verify -v
+
+# Let Aegir know about the new platform and site.
+if [ "${NOTIFY_AEGIR}" == "yes" ]; then
+  drush @hostmaster hosting-import "${PLATFORM_ALIAS}" -v
+fi

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -e
+set -v
+
+# Back up database
+BACKUP_PATH="${AEGIR_HOME}/backups/${JOB_NAME}-${BUILD_NUMBER}-${SITE_URI}"
+mkdir "${BACKUP_PATH}"
+drush  "${SITE_ALIAS}" sql-dump > "${BACKUP_PATH}/dump.sql"
+
+# Migrate site
+drush "${SITE_ALIAS}" provision-migrate "${PLATFORM_ALIAS}" --profile="${PROFILE}"
+drush "${SITE_ALIAS}" cc all

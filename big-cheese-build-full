@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -e
+set -v
+
+# Temporary move profile
+mkdir -p ${JENKINS_HOME}/jobs/${PLATFORM_NAME}-PROFILE
+mv * ${JENKINS_HOME}/jobs/${PLATFORM_NAME}-PROFILE
+
+# Build Drupal core
+mv ${JENKINS_HOME}/jobs/${PLATFORM_NAME}-PROFILE/platform.make .
+test -d ${ROOT} || mkdir ${ROOT}
+if pushd ${ROOT}; then
+  drush make -y ../platform.make
+  popd
+else
+  drush make -y platform.make ${ROOT}
+fi
+
+# Build profile
+cd ${WORKSPACE}/${ROOT}/profiles
+rm -rf ${PROFILE}
+mv ${JENKINS_HOME}/jobs/${PLATFORM_NAME}-PROFILE ${PROFILE}
+cd ${PROFILE}
+./build
+rm -rf ${JENKINS_HOME}/jobs/${PLATFORM_NAME}-PROFILE
+
+# Back to root of workspace
+cd ${WORKSPACE}

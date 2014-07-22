@@ -1,0 +1,44 @@
+#!/bin/bash
+
+set -e
+set -v
+
+SOURCE_PLATFORM_ALIAS="${1}"
+DESTINATION_PLATFORM_ALIAS="${2}"
+FORCE_MIGRATE="${3}"
+
+echo "SOURCE_PLATFORM_ALIAS: ${SOURCE_PLATFORM_ALIAS}"
+echo "DESTINATION_PLATFORM_ALIAS: ${DESTINATION_PLATFORM_ALIAS}"
+
+# Find all site aliases on source platform.
+SITES=$(big-cheese-find-site  --search-parameter="platform" --search-term="${SOURCE_PLATFORM_ALIAS}")
+echo "SITES: ${SITES}"
+
+if [ -z "${SITES}" ]; then
+  echo "No sites found on source platform: ${SOURCE_PLATFORM_ALIAS}. EXIT!"
+  exit 1
+fi
+
+# Exit if exists sites on destination platform.
+SITES_ON_DESTINATION_PLATFORM=$(big-cheese-find-site  --search-parameter="platform" --search-term="${DESTINATION_PLATFORM_ALIAS}")
+
+if [ -n "${SITES_ON_DESTINATION_PLATFORM}" ] && [ "${FORCE_MIGRATE}" != "1" ]; then
+  echo "Existing sites on destination platform: ${DESTINATION_PLATFORM_ALIAS}. EXIT!"
+  echo "SITES_ON_DESTINATION_PLATFORM: ${SITES_ON_DESTINATION_PLATFORM}"
+  echo "You can force migration by setting FORCE_MIGRATE to 1."
+  exit 1
+fi
+
+# Migrate sites.
+for site in ${SITES} ; do
+  if [ -n "${site}" ]; then
+   # Migrate site.
+   big-cheese-quick-migrate "${site}" "${DESTINATION_PLATFORM_ALIAS}" "${BUILD_NUMBER}"
+  fi
+done
+
+# Notify Aegir about changes on platforms, inclusive moved (migrated) sites.
+if [ "${NOTIFY_AEGIR}" == "yes" ]; then
+  drush @hostmaster hosting-task "${DESTINATION_PLATFORM_ALIAS}" verify --force -v
+  drush @hostmaster hosting-task "${SOURCE_PLATFORM_ALIAS}" verify --force -v
+fi
